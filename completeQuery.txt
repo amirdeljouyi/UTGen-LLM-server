@@ -1,0 +1,50 @@
+Credit for base prompt idea
+
+C. Lemieux, J. P. Inala, S. K. Lahiri and S. Sen,
+"CodaMosa: Escaping Coverage Plateaus in Test Generation with Pre-trained Large Language Models,"
+2023 IEEE/ACM 45th International Conference on Software Engineering (ICSE),
+Melbourne, Australia, 2023, pp. 919-931, doi: 10.1109/ICSE48619.2023.00085.
+
+
+{
+    prompt(prompt: {promptText: "@Test\n    public void testBumpVersionWithIrrelevantData() {\n        VersionHandler versionHandler = new VersionHandler();\n        String str_0 = \"a\\t!sUo~AU\";\n        int int_1 = 2;\n        Optional<String> str_2 = Optional.of(\"RC1\");\n\n        String str_1 = versionHandler.bumpVersion(str_0, int_1, str_2);\n\n        assertNotNull(str_1);\n        assertNotEquals(str_0, str_1);\n        assertTrue(str_1.contains(\"RC1\"));\n        assertEquals(str_1.length(), str_0.length() + 3);\n    }\n",
+           mutSignatureAndDoc: "/**\n * Bumps the version number at the specified position. If a pre-release label is provided, it is included in the bumped version.\n *\n * @param version     The version string to be bumped.\n * @param pos         The position of the version number to be bumped.\n * @param preRelease  An optional pre-release label.\n * @return The bumped version string.\n */\npublic String bumpVersion(String version, int pos, Optional<String> preRelease) {\n    // ... Method implementation would go here ...\n}\n",
+           promptType: "code gen"}){
+    llmResponse
+  }
+}
+
+    /**
+     * Bumps the version number at the specified position. If a pre-release label is provided, it is included in the bumped version.
+     *
+     * @param version     The version string to be bumped.
+     * @param pos         The position of the version number to be bumped.
+     * @param preRelease  An optional pre-release label.
+     * @return The bumped version string.
+     */
+    public String bumpVersion(String version, int pos, Optional<String> preRelease) {
+        // ... Method implementation would go here ...
+    }
+
+-------------------------------------------------------------------------------
+
+    @Test
+    public void testBumpVersionWithIrrelevantData() {
+        VersionHandler versionHandler = new VersionHandler();
+        String str_0 = "a\t!sUo~AU";
+        int int_1 = 2;
+        Optional<String> str_2 = Optional.of("RC1");
+
+        String str_1 = versionHandler.bumpVersion(str_0, int_1, str_2);
+
+        assertNotNull(str_1);
+        assertNotEquals(str_0, str_1);
+        assertTrue(str_1.contains("RC1"));
+        assertEquals(str_1.length(), str_0.length() + 3);
+    }
+
+   ------------------------------------
+
+java_code = "/**\n * Bumps the version number at the specified position. If a pre-release label is provided, it is included in the bumped version.\n *\n * @param version     The version string to be bumped.\n * @param pos         The position of the version number to be bumped.\n * @param preRelease  An optional pre-release label.\n * @return The bumped version string.\n */\npublic String bumpVersion(String version, int pos, Optional<String> preRelease) {\n    // ... Method implementation would go here ...\n}\n"
+
+java_test_code = "@Test\n    public void testBumpVersionWithIrrelevantData() {\n        VersionHandler versionHandler = new VersionHandler();\n        String str_0 = \"a\\t!sUo~AU\";\n        int int_1 = 2;\n        Optional<String> str_2 = Optional.of(\"RC1\");\n\n        String str_1 = versionHandler.bumpVersion(str_0, int_1, str_2);\n\n        assertNotNull(str_1);\n        assertNotEquals(str_0, str_1);\n        assertTrue(str_1.contains(\"RC1\"));\n        assertEquals(str_1.length(), str_0.length() + 3);\n    }\n"
