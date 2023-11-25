@@ -4,8 +4,8 @@ from typing import Optional
 
 # from transformers import AutoModelForCausalLM, AutoTokenizer
 
-api_token = "hf_XXXXXXXX"  # <- change this to your hugging_face_token
-model_id = "Salesforce/codet5-large" # <- change this to the model you want to use
+api_token = "hf_XXXXXXX"  # <- change this to your hugging_face_token
+model_id = "WizardLM/WizardCoder-3B-V1.0" # <- change this to the model you want to use
 
 
 # model_id = "codellama/CodeLlama-7b-Instruct-hf" # <- this is the model intended to be used but had to be commented out
@@ -46,28 +46,43 @@ def get_llm_response(prompt: Prompt) -> Response:
 
     # This constructed prompt is based on the paper by meta on CodeLlama and how to design prompts for the model
     # based on the model in use and task specification at hand this construction should be adjusted accordingly
-    constructed_prompt = ("[INST]Your task is to make a previously written JUnit test more understandable." +
-                          "The understandable test must be between the [TEST] and [/TEST] tags. Provide comments" +
-                          " where necessary and rename variable to be understandable. The code to improve is between" +
-                          " the [CODE] and [/Code] tags. The method signature and javadoc of the method under test is" +
-                          " given between the [SIGNATURE] and [/SIGNATURE] tags. [/INST]\n\n" +
-                          f"[CODE]\n{prompt.prompt_text}\n[/CODE]\n[SIGNATURE]\n{prompt.mut_signature_and_doc}\n[/SIGNATURE]\n")
+    # constructed_prompt = ("[INST]Your task is to make a previously written JUnit test more understandable." +
+    #                       "The understandable test must be between the [TEST] and [/TEST] tags. Provide comments" +
+    #                       " where necessary and rename variable to be understandable. The code to improve is between" +
+    #                       " the [CODE] and [/Code] tags. The method signature and javadoc of the method under test is" +
+    #                       " given between the [SIGNATURE] and [/SIGNATURE] tags. [/INST]\n\n" +
+    #                       f"[CODE]\n{prompt.prompt_text}\n[/CODE]\n[SIGNATURE]\n{prompt.mut_signature_and_doc}\n[/SIGNATURE]\n")
+
+    # The adapted prompt for wizard coder
+    # constructed_prompt = ("Below is an instruction that describes a task."
+    #                       "Write a response that appropriately completes the request."
+    #                       "\n\n### Instruction:Your task is to make a previously written JUnit test more "
+    #                       "understandable. Provide comments where necessary and rename variable to be understandable."
+    #                       "The code to improve can be found below the CODE tag. The method signature and javadoc"
+    #                       " of the method under test is below the tag SIGNATURE.\n\n"
+    #                       f"###CODE\n{prompt.prompt_text}\n\n###SIGNATURE\n{prompt.mut_signature_and_doc}\n\n\n### "
+    #                       f"Response:")
+    constructed_prompt = ("Below is an instruction that describes a task. Write a response that appropriately "
+                          "completes the request.\n\n### Instruction:\nWrite a Java method that takes two numbers and "
+                          "calculates the power of the first number to the second number in a recursive way\n\n### "
+                          "Response:")
 
     # the payload sent to hf along with the api call to generate the desired output, along with additional parameters
     # and options if required, if not these can be commented out.
     payload = {
         'inputs': constructed_prompt,
-        'parameters': {
-            'max_new_tokens': 250,
-            # any other parameters required
-        },
+        # 'parameters': {
+        #     'max_new_tokens': 250,
+        #     'top_p': 1,
+        #     # any other parameters required
+        # },
         'options': {
-            'wait_for_model': True,
+            'wait_for_model': False,
             # always handy for when models are not yet loaded
         }
     }
 
-    # print(constructed_prompt)
+    print(constructed_prompt)
     response = requests.post(API_URL, headers=headers, json=payload)
     response_json = response.json()
     if 'error' in response_json:
