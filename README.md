@@ -13,6 +13,7 @@ inspired by methods like CodaMosa. The current phase focuses on handling request
 
 - Python >= 3.8
 - Pip (Python package installer)
+- ollama >= v0.1.12 *(When running models locally)*
 
 ### Installation
 
@@ -24,13 +25,39 @@ inspired by methods like CodaMosa. The current phase focuses on handling request
    ```
    pip install strawberry requests
    ```
-3. **TOKEN_SETUP**: in `main.py` change the value of `api_token` to your hugging face token:
+#### Setting Up The Used Model
+##### Choosing To Use Hugging Face API
+1. **Set Non-Local Use**: in `main.py` change the value of the variable `USE_LOCAL_LLM` to `False`
+2. **Token Setup**: in `main.py` change the value of `api_token` to your hugging face token:
    ```python
    api_token = "hf_XXXXXXX" # <- your hugging face token
    ```
    Replace `hf_XXXXXXX` with your actual API token.
 
-### Running the Application
+##### Choosing To Run Models Locally
+1. **Set Local Use**: in `main.py` change the value of the variable `USE_LOCAL_LLM` to `True`
+2. **Installing Ollama**: For a detailed tutorial on setting up ollama, we suggest you refer to [their repository](https://github.com/jmorganca/ollama)
+
+   ###### Setting Up Ollama on Ubuntu / WSL2
+   First install ollama from the CLI
+   ```
+   curl https://ollama.ai/install.sh | sh
+   ```
+   Then install the LLM that you want to use. Here, by default, we use `codellama:7b-instruct` which is from the llama2 family of LLMs
+   ```
+   ollama run codellama:7b-instruct
+   ```
+   after the installation has completed you will see the following in your CLI
+   ```
+      >>> Send a message (/? for help)
+   ```
+   This indicates that the model has been properly fetched.
+   You can exit this screen by typing
+   ```
+   /bye
+   ```
+   You are now ready to work with LLM-server
+### Getting Things Running
 
 1. **Set the Environment Variables**: Ensure that your python environment is set up properly.
 2. **Start the Server**: Run the following command to start the Strawberry server:
