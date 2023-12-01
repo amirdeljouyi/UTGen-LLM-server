@@ -48,3 +48,18 @@ Melbourne, Australia, 2023, pp. 919-931, doi: 10.1109/ICSE48619.2023.00085.
 java_code = "/**\n * Bumps the version number at the specified position. If a pre-release label is provided, it is included in the bumped version.\n *\n * @param version     The version string to be bumped.\n * @param pos         The position of the version number to be bumped.\n * @param preRelease  An optional pre-release label.\n * @return The bumped version string.\n */\npublic String bumpVersion(String version, int pos, Optional<String> preRelease) {\n    // ... Method implementation would go here ...\n}\n"
 
 java_test_code = "@Test\n    public void testBumpVersionWithIrrelevantData() {\n        VersionHandler versionHandler = new VersionHandler();\n        String str_0 = \"a\\t!sUo~AU\";\n        int int_1 = 2;\n        Optional<String> str_2 = Optional.of(\"RC1\");\n\n        String str_1 = versionHandler.bumpVersion(str_0, int_1, str_2);\n\n        assertNotNull(str_1);\n        assertNotEquals(str_0, str_1);\n        assertTrue(str_1.contains(\"RC1\"));\n        assertEquals(str_1.length(), str_0.length() + 3);\n    }\n"
+------------------------------------------------
+
+    # The adapted prompt for wizard coder
+    # constructed_prompt = ("Below is an instruction that describes a task."
+    #                       "Write a response that appropriately completes the request."
+    #                       "\n\n### Instruction:Your task is to make a previously written JUnit test more "
+    #                       "understandable. Provide comments where necessary and rename variable to be understandable."
+    #                       "The code to improve can be found below the CODE tag. The method signature and javadoc"
+    #                       " of the method under test is below the tag SIGNATURE.\n\n"
+    #                       f"###CODE\n{prompt.prompt_text}\n\n###SIGNATURE\n{prompt.mut_signature_and_doc}\n\n\n### "
+    #                       f"Response:")
+    # constructed_prompt = ("Below is an instruction that describes a task. Write a response that appropriately "
+    #                       "completes the request.\n\n### Instruction:\nWrite a Java method that takes two numbers and "
+    #                       "calculates the power of the first number to the second number in a recursive way\n\n### "
+    #                       "Response:")
