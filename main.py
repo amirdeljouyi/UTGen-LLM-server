@@ -52,15 +52,25 @@ def get_llm_response(prompt: Prompt) -> Response:
     # This constructed prompt is based on the paper by meta on CodeLlama and how to design prompts for the model
     # based on the model in use and task specification at hand this construction should be adjusted accordingly
 
+    # constructed_prompt = (
+    #             "[INST] <<SYS>> You are a Java developer optimizing JUnit tests for clarity. <</SYS>> Your task is to "
+    #             "make a"
+    #             "previously written JUnit test more understandable. The understandable test must be between the ["
+    #             "TEST] and [/TEST] tags. Provide comments where necessary and rename variables and the test name to be "
+    #             "understandable."
+    #             "The previously written test to improve is between the [CODE] and [/CODE] tags. The method signature "
+    #             "and javadoc of the"
+    #             "method under test is given between the [SIGNATURE] and [/SIGNATURE] tags.[/INST]\n\n" +
+    #             f"[CODE]\n{prompt.prompt_text}\n[/CODE]\n[SIGNATURE]\n{prompt.mut_signature_and_doc}\n[/SIGNATURE]\n")
     constructed_prompt = (
-                "[INST] <<SYS>> You are a Java developer optimizing JUnit tests for clarity. <</SYS>> Your task is to "
-                "make a"
-                "previously written JUnit test more understandable. The understandable test must be between the ["
-                "TEST] and [/TEST] tags. Provide comments where necessary and rename variables to be understandable. "
-                "The code to improve is between the [CODE] and [/CODE] tags. The method signature and javadoc of the "
-                "method under test is given between the [SIGNATURE] and [/SIGNATURE] tags. Only provide the improved "
-                "test[/INST]\n\n" +
-                f"[CODE]\n{prompt.prompt_text}\n[/CODE]\n[SIGNATURE]\n{prompt.mut_signature_and_doc}\n[/SIGNATURE]\n")
+                    "[INST] <<SYS>> You are a Java developer optimizing JUnit tests for clarity. <</SYS>> Your task "
+                    "is to make a"
+                    "previously written JUnit test more understandable. The returned understandable test must be between the ["
+                    "TEST] and [/TEST] tags. Provide comments where necessary and rename variables and the test name to be "
+                    "understandable."
+                    "The previously written test to improve is between the [CODE] and [/CODE] tags."
+                    f"[CODE]\n{prompt.prompt_text}\n[/CODE]\n")
+
 
     print(constructed_prompt)   # Debugging : Print constructed prmopt
     if not USE_LOCAL_LLM:
@@ -106,6 +116,7 @@ def get_llm_response(prompt: Prompt) -> Response:
             'Content-Type': 'application/json'
         }
 
+
         data = {
             "model": "codellama",
             "prompt": constructed_prompt,
@@ -120,12 +131,22 @@ def get_llm_response(prompt: Prompt) -> Response:
             try:
                 regex_test = r'\[TEST](.*?)\[/TEST]'
                 actual_response = data["response"]
-                extracted_answer = re.findall(regex_test, actual_response, re.DOTALL)[0]
-                # Extracting the specific response part from the entire response
                 print(actual_response)
+                # Extracting the specific response part from the entire response
+                extracted_answer = re.findall(regex_test, actual_response, re.DOTALL)[0]
+
                 return Response(llm_response=extracted_answer)
             except:
-                return Response(llm_response="ERROR: Something Went Wrong When Extracting Response")
+                try:
+                    regex_test = r'\```java (.*?)\```'
+                    actual_response = data["response"]
+                    print(actual_response)
+                    # Extracting the specific response part from the entire response
+                    extracted_answer = re.findall(regex_test, actual_response, re.DOTALL)[0]
+
+                    return Response(llm_response=extracted_answer)
+                except:
+                    return Response(llm_response="ERROR: Something Went Wrong When Extracting Response")
         else:
             print("Error:", response.status_code, response.text)
 
