@@ -1,0 +1,745 @@
+[
+    {
+        "package_name": "org.springframework.samples.petclinic",
+        "classes": [
+            {
+                "class_name": "PetClinicApplication",
+                "methods": [
+                    {
+                        "id": "8dbdc945",
+                        "method_name": "main",
+                        "signature": "public static void main(String args)",
+                        "code": "\n\tpublic static void main(String[] args) {\n\t\tSpringApplication.run(PetClinicApplication.class, args);\n\t}\n",
+                        "javadoc": null
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "package_name": "org.springframework.samples.petclinic.owner",
+        "classes": [
+            {
+                "class_name": "PetController",
+                "methods": [
+                    {
+                        "id": "aa532dd3",
+                        "method_name": "populatePetTypes",
+                        "signature": "public Collection populatePetTypes()",
+                        "code": "\t@ModelAttribute(\"types\")\n\tpublic Collection<PetType> populatePetTypes() {\n\t\treturn this.owners.findPetTypes();\n\t}\n",
+                        "javadoc": null
+                    },
+                    {
+                        "id": "a2af2093",
+                        "method_name": "findOwner",
+                        "signature": "public Owner findOwner(int ownerId)",
+                        "code": "\t@ModelAttribute(\"owner\")\n\tpublic Owner findOwner(@PathVariable(\"ownerId\") int ownerId) {\n\t\treturn this.owners.findById(ownerId).get();\n\t}\n",
+                        "javadoc": null
+                    },
+                    {
+                        "id": "ef31058d",
+                        "method_name": "findPet",
+                        "signature": "public Pet findPet(int ownerId, Integer petId)",
+                        "code": "\t@ModelAttribute(\"pet\")\n\tpublic Pet findPet(@PathVariable(\"ownerId\") int ownerId,\n\t\t\t@PathVariable(name = \"petId\", required = false) Integer petId) {\n\t\treturn petId == null ? new Pet() : this.owners.findById(ownerId).get().getPet(petId);\n\t}\n",
+                        "javadoc": null
+                    },
+                    {
+                        "id": "267908bc",
+                        "method_name": "initOwnerBinder",
+                        "signature": "public void initOwnerBinder(WebDataBinder dataBinder)",
+                        "code": "\t@InitBinder(\"owner\")\n\tpublic void initOwnerBinder(WebDataBinder dataBinder) {\n\t\tdataBinder.setDisallowedFields(\"id\");\n\t}\n",
+                        "javadoc": null
+                    },
+                    {
+                        "id": "af77ec56",
+                        "method_name": "initPetBinder",
+                        "signature": "public void initPetBinder(WebDataBinder dataBinder)",
+                        "code": "\t@InitBinder(\"pet\")\n\tpublic void initPetBinder(WebDataBinder dataBinder) {\n\t\tdataBinder.setValidator(new PetValidator());\n\t}\n",
+                        "javadoc": null
+                    },
+                    {
+                        "id": "273da64e",
+                        "method_name": "initCreationForm",
+                        "signature": "public String initCreationForm(Owner owner, ModelMap model)",
+                        "code": "\t@GetMapping(\"/pets/new\")\n\tpublic String initCreationForm(Owner owner, ModelMap model) {\n\t\tPet pet = new Pet();\n\t\towner.addPet(pet);\n\t\tmodel.put(\"pet\", pet);\n\t\treturn VIEWS_PETS_CREATE_OR_UPDATE_FORM;\n\t}\n",
+                        "javadoc": null
+                    },
+                    {
+                        "id": "ee202b07",
+                        "method_name": "processCreationForm",
+                        "signature": "public String processCreationForm(Owner owner, Pet pet, BindingResult result, ModelMap model)",
+                        "code": "\t@PostMapping(\"/pets/new\")\n\tpublic String processCreationForm(Owner owner, @Valid Pet pet, BindingResult result, ModelMap model) {\n\t\tif (StringUtils.hasLength(pet.getName()) && pet.isNew() && owner.getPet(pet.getName(), true) != null) {\n\t\t\tresult.rejectValue(\"name\", \"duplicate\", \"already exists\");\n\t\t}\n\n\t\towner.addPet(pet);\n\t\tif (result.hasErrors()) {\n\t\t\tmodel.put(\"pet\", pet);\n\t\t\treturn VIEWS_PETS_CREATE_OR_UPDATE_FORM;\n\t\t}\n\n\t\tthis.owners.save(owner);\n\t\treturn \"redirect:/owners/{ownerId}\";\n\t}\n",
+                        "javadoc": null
+                    },
+                    {
+                        "id": "71349bdd",
+                        "method_name": "initUpdateForm",
+                        "signature": "public String initUpdateForm(Owner owner, int petId, ModelMap model)",
+                        "code": "\t@GetMapping(\"/pets/{petId}/edit\")\n\tpublic String initUpdateForm(Owner owner, @PathVariable(\"petId\") int petId, ModelMap model) {\n\t\tPet pet = owner.getPet(petId);\n\t\tmodel.put(\"pet\", pet);\n\t\treturn VIEWS_PETS_CREATE_OR_UPDATE_FORM;\n\t}\n",
+                        "javadoc": null
+                    },
+                    {
+                        "id": "9ef7750b",
+                        "method_name": "processUpdateForm",
+                        "signature": "public String processUpdateForm(Pet pet, BindingResult result, Owner owner, ModelMap model)",
+                        "code": "\t@PostMapping(\"/pets/{petId}/edit\")\n\tpublic String processUpdateForm(@Valid Pet pet, BindingResult result, Owner owner, ModelMap model) {\n\t\tif (result.hasErrors()) {\n\t\t\tmodel.put(\"pet\", pet);\n\t\t\treturn VIEWS_PETS_CREATE_OR_UPDATE_FORM;\n\t\t}\n\n\t\towner.addPet(pet);\n\t\tthis.owners.save(owner);\n\t\treturn \"redirect:/owners/{ownerId}\";\n\t}\n",
+                        "javadoc": null
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "package_name": "org.springframework.samples.petclinic.owner",
+        "classes": []
+    },
+    {
+        "package_name": "org.springframework.samples.petclinic.owner",
+        "classes": [
+            {
+                "class_name": "PetTypeFormatter",
+                "methods": [
+                    {
+                        "id": "29fbb7a5",
+                        "method_name": "print",
+                        "signature": "public String print(PetType petType, Locale locale)",
+                        "code": "\t@Override\n\tpublic String print(PetType petType, Locale locale) {\n\t\treturn petType.getName();\n\t}\n",
+                        "javadoc": null
+                    },
+                    {
+                        "id": "330c0439",
+                        "method_name": "parse",
+                        "signature": "public PetType parse(String text, Locale locale)",
+                        "code": "\t@Override\n\tpublic PetType parse(String text, Locale locale) throws ParseException {\n\t\tCollection<PetType> findPetTypes = this.owners.findPetTypes();\n\t\tfor (PetType type : findPetTypes) {\n\t\t\tif (type.getName().equals(text)) {\n\t\t\t\treturn type;\n\t\t\t}\n\t\t}\n\t\tthrow new ParseException(\"type not found: \" + text, 0);\n\t}\n",
+                        "javadoc": null
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "package_name": "org.springframework.samples.petclinic.owner",
+        "classes": [
+            {
+                "class_name": "Owner",
+                "methods": [
+                    {
+                        "id": "ab6ac1fe",
+                        "method_name": "getAddress",
+                        "signature": "public String getAddress()",
+                        "code": "\n\tpublic String getAddress() {\n\t\treturn this.address;\n\t}\n",
+                        "javadoc": null
+                    },
+                    {
+                        "id": "88e32010",
+                        "method_name": "setAddress",
+                        "signature": "public void setAddress(String address)",
+                        "code": "\n\tpublic void setAddress(String address) {\n\t\tthis.address = address;\n\t}\n",
+                        "javadoc": null
+                    },
+                    {
+                        "id": "fb95cecb",
+                        "method_name": "getCity",
+                        "signature": "public String getCity()",
+                        "code": "\n\tpublic String getCity() {\n\t\treturn this.city;\n\t}\n",
+                        "javadoc": null
+                    },
+                    {
+                        "id": "5e83f069",
+                        "method_name": "setCity",
+                        "signature": "public void setCity(String city)",
+                        "code": "\n\tpublic void setCity(String city) {\n\t\tthis.city = city;\n\t}\n",
+                        "javadoc": null
+                    },
+                    {
+                        "id": "35c91ad5",
+                        "method_name": "getTelephone",
+                        "signature": "public String getTelephone()",
+                        "code": "\n\tpublic String getTelephone() {\n\t\treturn this.telephone;\n\t}\n",
+                        "javadoc": null
+                    },
+                    {
+                        "id": "32a228d4",
+                        "method_name": "setTelephone",
+                        "signature": "public void setTelephone(String telephone)",
+                        "code": "\n\tpublic void setTelephone(String telephone) {\n\t\tthis.telephone = telephone;\n\t}\n",
+                        "javadoc": null
+                    },
+                    {
+                        "id": "ee1cd327",
+                        "method_name": "getPets",
+                        "signature": "public List getPets()",
+                        "code": "\n\tpublic List<Pet> getPets() {\n\t\treturn this.pets;\n\t}\n",
+                        "javadoc": null
+                    },
+                    {
+                        "id": "92f9dcdb",
+                        "method_name": "addPet",
+                        "signature": "public void addPet(Pet pet)",
+                        "code": "\n\tpublic void addPet(Pet pet) {\n\t\tif (pet.isNew()) {\n\t\t\tgetPets().add(pet);\n",
+                        "javadoc": null
+                    },
+                    {
+                        "id": "986d5ef2",
+                        "method_name": "getPet",
+                        "signature": "public Pet getPet(String name)",
+                        "code": "\t */\n\tpublic Pet getPet(String name) {\n\t\treturn getPet(name, false);\n\t}\n",
+                        "javadoc": "/**\n\t * Return the Pet with the given name, or null if none found for this Owner.\n\t * @param name to test\n\t * @return a pet if pet name is already in use\n\t */"
+                    },
+                    {
+                        "id": "d7e11afb",
+                        "method_name": "getPet",
+                        "signature": "public Pet getPet(Integer id)",
+                        "code": "\t */\n\tpublic Pet getPet(Integer id) {\n\t\tfor (Pet pet : getPets()) {\n\t\t\tif (!pet.isNew()) {\n\t\t\t\tInteger compId = pet.getId();\n\t\t\t\tif (compId.equals(id)) {\n\t\t\t\t\treturn pet;\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t\treturn null;\n\t}\n",
+                        "javadoc": "/**\n\t * Return the Pet with the given id, or null if none found for this Owner.\n\t * @param name to test\n\t * @return a pet if pet id is already in use\n\t */"
+                    },
+                    {
+                        "id": "85e7e03f",
+                        "method_name": "getPet",
+                        "signature": "public Pet getPet(String name, boolean ignoreNew)",
+                        "code": "\t */\n\tpublic Pet getPet(String name, boolean ignoreNew) {\n\t\tname = name.toLowerCase();\n\t\tfor (Pet pet : getPets()) {\n\t\t\tif (!ignoreNew || !pet.isNew()) {\n\t\t\t\tString compName = pet.getName();\n\t\t\t\tcompName = compName == null ? \"\" : compName.toLowerCase();\n\t\t\t\tif (compName.equals(name)) {\n\t\t\t\t\treturn pet;\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t\treturn null;\n\t}\n",
+                        "javadoc": "/**\n\t * Return the Pet with the given name, or null if none found for this Owner.\n\t * @param name to test\n\t * @return a pet if pet name is already in use\n\t */"
+                    },
+                    {
+                        "id": "2c12f69b",
+                        "method_name": "toString",
+                        "signature": "public String toString()",
+                        "code": "\t@Override\n\tpublic String toString() {\n\t\treturn new ToStringCreator(this).append(\"id\", this.getId()).append(\"new\", this.isNew())\n\t\t\t\t.append(\"lastName\", this.getLastName()).append(\"firstName\", this.getFirstName())\n",
+                        "javadoc": null
+                    },
+                    {
+                        "id": "58d573b6",
+                        "method_name": "addVisit",
+                        "signature": "public Owner addVisit(Integer petId, Visit visit)",
+                        "code": "\t */\n\tpublic Owner addVisit(Integer petId, Visit visit) {\n\n\t\tAssert.notNull(petId, \"Pet identifier must not be null!\");\n\t\tAssert.notNull(visit, \"Visit must not be null!\");\n\n\t\tPet pet = getPet(petId);\n\n\t\tAssert.notNull(pet, \"Invalid Pet identifier!\");\n\n\t\tpet.addVisit(visit);\n\n\t\treturn this;\n\t}\n",
+                        "javadoc": "/**\n\t * Adds the given {@link Visit} to the {@link Pet} with the given identifier.\n\t * @param petId the identifier of the {@link Pet}, must not be {@literal null}.\n\t * @param visit the visit to add, must not be {@literal null}.\n\t */"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "package_name": "org.springframework.samples.petclinic.owner",
+        "classes": [
+            {
+                "class_name": "OwnerController",
+                "methods": [
+                    {
+                        "id": "c34c7246",
+                        "method_name": "setAllowedFields",
+                        "signature": "public void setAllowedFields(WebDataBinder dataBinder)",
+                        "code": "\t@InitBinder\n\tpublic void setAllowedFields(WebDataBinder dataBinder) {\n\t\tdataBinder.setDisallowedFields(\"id\");\n\t}\n",
+                        "javadoc": null
+                    },
+                    {
+                        "id": "b3403894",
+                        "method_name": "findOwner",
+                        "signature": "public Owner findOwner(Integer ownerId)",
+                        "code": "\t@ModelAttribute(\"owner\")\n\tpublic Owner findOwner(@PathVariable(name = \"ownerId\", required = false) Integer ownerId) {\n\t\treturn ownerId == null ? new Owner() : this.owners.findById(ownerId).get();\n\t}\n",
+                        "javadoc": null
+                    },
+                    {
+                        "id": "f8e5449f",
+                        "method_name": "initCreationForm",
+                        "signature": "public String initCreationForm(Map model)",
+                        "code": "\t@GetMapping(\"/owners/new\")\n\tpublic String initCreationForm(Map<String, Object> model) {\n\t\tOwner owner = new Owner();\n\t\tmodel.put(\"owner\", owner);\n\t\treturn VIEWS_OWNER_CREATE_OR_UPDATE_FORM;\n\t}\n",
+                        "javadoc": null
+                    },
+                    {
+                        "id": "3d839fde",
+                        "method_name": "processCreationForm",
+                        "signature": "public String processCreationForm(Owner owner, BindingResult result)",
+                        "code": "\t@PostMapping(\"/owners/new\")\n\tpublic String processCreationForm(@Valid Owner owner, BindingResult result) {\n\t\tif (result.hasErrors()) {\n\t\t\treturn VIEWS_OWNER_CREATE_OR_UPDATE_FORM;\n\t\t}\n\n\t\tthis.owners.save(owner);\n\t\treturn \"redirect:/owners/\" + owner.getId();\n\t}\n",
+                        "javadoc": null
+                    },
+                    {
+                        "id": "a0862f07",
+                        "method_name": "initFindForm",
+                        "signature": "public String initFindForm(Map model)",
+                        "code": "\t@GetMapping(\"/owners/find\")\n\tpublic String initFindForm(Map<String, Object> model) {\n\t\tmodel.put(\"owner\", new Owner());\n\t\treturn \"owners/findOwners\";\n\t}\n",
+                        "javadoc": null
+                    },
+                    {
+                        "id": "317a0ae6",
+                        "method_name": "processFindForm",
+                        "signature": "public String processFindForm(int page, Owner owner, BindingResult result, Model model)",
+                        "code": "\t@GetMapping(\"/owners\")\n\tpublic String processFindForm(@RequestParam(defaultValue = \"1\") int page, Owner owner, BindingResult result,\n\t\t\tModel model) {\n\t\t// allow parameterless GET request for /owners to return all records\n\t\tif (owner.getLastName() == null) {\n\t\t\towner.setLastName(\"\"); // empty string signifies broadest possible search\n\t\t}\n\n\t\t// find owners by last name\n\t\tPage<Owner> ownersResults = findPaginatedForOwnersLastName(page, owner.getLastName());\n\t\tif (ownersResults.isEmpty()) {\n\t\t\t// no owners found\n\t\t\tresult.rejectValue(\"lastName\", \"notFound\", \"not found\");\n\t\t\treturn \"owners/findOwners\";\n\t\t}\n\n\t\tif (ownersResults.getTotalElements() == 1) {\n\t\t\t// 1 owner found\n\t\t\towner = ownersResults.iterator().next();\n\t\t\treturn \"redirect:/owners/\" + owner.getId();\n\t\t}\n\n\t\t// multiple owners found\n\t\treturn addPaginationModel(page, model, ownersResults);\n\t}\n",
+                        "javadoc": null
+                    },
+                    {
+                        "id": "ada8fbca",
+                        "method_name": "addPaginationModel",
+                        "signature": "public String addPaginationModel(int page, Model model, Page paginated)",
+                        "code": "\n\tpublic String addPaginationModel(int page, Model model, Page<Owner> paginated) {\n\t\tmodel.addAttribute(\"listOwners\", paginated);\n\t\tList<Owner> listOwners = paginated.getContent();\n\t\tmodel.addAttribute(\"currentPage\", page);\n\t\tmodel.addAttribute(\"totalPages\", paginated.getTotalPages());\n\t\tmodel.addAttribute(\"totalItems\", paginated.getTotalElements());\n\t\tmodel.addAttribute(\"listOwners\", listOwners);\n\t\treturn \"owners/ownersList\";\n\t}\n",
+                        "javadoc": null
+                    },
+                    {
+                        "id": "dd968039",
+                        "method_name": "findPaginatedForOwnersLastName",
+                        "signature": "private Page findPaginatedForOwnersLastName(int page, String lastname)",
+                        "code": "\n\tprivate Page<Owner> findPaginatedForOwnersLastName(int page, String lastname) {\n\t\tint pageSize = 5;\n\t\tPageable pageable = PageRequest.of(page - 1, pageSize);\n\t\treturn owners.findByLastName(lastname, pageable);\n\t}\n",
+                        "javadoc": null
+                    },
+                    {
+                        "id": "5f33cb5d",
+                        "method_name": "initUpdateOwnerForm",
+                        "signature": "public String initUpdateOwnerForm(int ownerId, Model model)",
+                        "code": "\t@GetMapping(\"/owners/{ownerId}/edit\")\n\tpublic String initUpdateOwnerForm(@PathVariable(\"ownerId\") int ownerId, Model model) {\n\t\tOwner owner = this.owners.findById(ownerId).get();\n\t\tmodel.addAttribute(owner);\n\t\treturn VIEWS_OWNER_CREATE_OR_UPDATE_FORM;\n\t}\n",
+                        "javadoc": null
+                    },
+                    {
+                        "id": "553c621b",
+                        "method_name": "processUpdateOwnerForm",
+                        "signature": "public String processUpdateOwnerForm(Owner owner, BindingResult result, int ownerId)",
+                        "code": "\t@PostMapping(\"/owners/{ownerId}/edit\")\n\tpublic String processUpdateOwnerForm(@Valid Owner owner, BindingResult result,\n\t\t\t@PathVariable(\"ownerId\") int ownerId) {\n\t\tif (result.hasErrors()) {\n\t\t\treturn VIEWS_OWNER_CREATE_OR_UPDATE_FORM;\n\t\t}\n\n\t\towner.setId(ownerId);\n\t\tthis.owners.save(owner);\n\t\treturn \"redirect:/owners/{ownerId}\";\n\t}\n",
+                        "javadoc": null
+                    },
+                    {
+                        "id": "e14deea7",
+                        "method_name": "showOwner",
+                        "signature": "public ModelAndView showOwner(int ownerId)",
+                        "code": "\t@GetMapping(\"/owners/{ownerId}\")\n\tpublic ModelAndView showOwner(@PathVariable(\"ownerId\") int ownerId) {\n\t\tModelAndView mav = new ModelAndView(\"owners/ownerDetails\");\n\t\tOwner owner = this.owners.findById(ownerId).get();\n\t\tmav.addObject(owner);\n\t\treturn mav;\n\t}\n",
+                        "javadoc": "/**\n\t * Custom handler for displaying an owner.\n\t * @param ownerId the ID of the owner to display\n\t * @return a ModelMap with the model attributes for the view\n\t */"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "package_name": "org.springframework.samples.petclinic.owner",
+        "classes": [
+            {
+                "class_name": "VisitController",
+                "methods": [
+                    {
+                        "id": "5ce23e55",
+                        "method_name": "setAllowedFields",
+                        "signature": "public void setAllowedFields(WebDataBinder dataBinder)",
+                        "code": "\t@InitBinder\n\tpublic void setAllowedFields(WebDataBinder dataBinder) {\n\t\tdataBinder.setDisallowedFields(\"id\");\n\t}\n",
+                        "javadoc": null
+                    },
+                    {
+                        "id": "fc4e4f7f",
+                        "method_name": "loadPetWithVisit",
+                        "signature": "public Visit loadPetWithVisit(int ownerId, int petId, Map model)",
+                        "code": "\t@ModelAttribute(\"visit\")\n\tpublic Visit loadPetWithVisit(@PathVariable(\"ownerId\") int ownerId, @PathVariable(\"petId\") int petId,\n\t\t\tMap<String, Object> model) {\n\t\tOptional<Owner> owner = this.owners.findById(ownerId);\n\n\t\tVisit visit = new Visit();\n\t\tif(owner.isPresent()){\n\n\t\t\tPet pet = owner.get().getPet(petId);\n\t\t\tmodel.put(\"pet\", pet);\n\t\t\tmodel.put(\"owner\", owner);\n\n\t\t\tpet.addVisit(visit);\n\t\t}\n\t\treturn visit;\n\t}\n",
+                        "javadoc": "/**\n\t * Called before each and every @RequestMapping annotated method. 2 goals: - Make sure\n\t * we always have fresh data - Since we do not use the session scope, make sure that\n\t * Pet object always has an id (Even though id is not part of the form fields)\n\t * @param petId\n\t * @return Pet\n\t */"
+                    },
+                    {
+                        "id": "ecd86d28",
+                        "method_name": "initNewVisitForm",
+                        "signature": "public String initNewVisitForm()",
+                        "code": "\t@GetMapping(\"/owners/{ownerId}/pets/{petId}/visits/new\")\n\tpublic String initNewVisitForm() {\n\t\treturn \"pets/createOrUpdateVisitForm\";\n\t}\n",
+                        "javadoc": null
+                    },
+                    {
+                        "id": "4a1598cf",
+                        "method_name": "processNewVisitForm",
+                        "signature": "public String processNewVisitForm(Owner owner, int petId, Visit visit, BindingResult result)",
+                        "code": "\t@PostMapping(\"/owners/{ownerId}/pets/{petId}/visits/new\")\n\tpublic String processNewVisitForm(@ModelAttribute Owner owner, @PathVariable int petId, @Valid Visit visit,\n\t\t\tBindingResult result) {\n\t\tif (result.hasErrors()) {\n\t\t\treturn \"pets/createOrUpdateVisitForm\";\n\t\t}\n\n\t\towner.addVisit(petId, visit);\n\t\tthis.owners.save(owner);\n\t\treturn \"redirect:/owners/{ownerId}\";\n\t}\n",
+                        "javadoc": null
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "package_name": "org.springframework.samples.petclinic.owner",
+        "classes": [
+            {
+                "class_name": "Pet",
+                "methods": [
+                    {
+                        "id": "6a59cc8d",
+                        "method_name": "setBirthDate",
+                        "signature": "public void setBirthDate(LocalDate birthDate)",
+                        "code": "\n\tpublic void setBirthDate(LocalDate birthDate) {\n\t\tthis.birthDate = birthDate;\n\t}\n",
+                        "javadoc": null
+                    },
+                    {
+                        "id": "772cba9f",
+                        "method_name": "getBirthDate",
+                        "signature": "public LocalDate getBirthDate()",
+                        "code": "\n\tpublic LocalDate getBirthDate() {\n\t\treturn this.birthDate;\n\t}\n",
+                        "javadoc": null
+                    },
+                    {
+                        "id": "16426451",
+                        "method_name": "getType",
+                        "signature": "public PetType getType()",
+                        "code": "\n\tpublic PetType getType() {\n\t\treturn this.type;\n\t}\n",
+                        "javadoc": null
+                    },
+                    {
+                        "id": "1fb1c489",
+                        "method_name": "setType",
+                        "signature": "public void setType(PetType type)",
+                        "code": "\n\tpublic void setType(PetType type) {\n\t\tthis.type = type;\n\t}\n",
+                        "javadoc": null
+                    },
+                    {
+                        "id": "ed37b0e9",
+                        "method_name": "getVisits",
+                        "signature": "public Collection getVisits()",
+                        "code": "\n\tpublic Collection<Visit> getVisits() {\n\t\treturn this.visits;\n\t}\n",
+                        "javadoc": null
+                    },
+                    {
+                        "id": "9280908b",
+                        "method_name": "addVisit",
+                        "signature": "public void addVisit(Visit visit)",
+                        "code": "\n\tpublic void addVisit(Visit visit) {\n\t\tgetVisits().add(visit);\n\t}\n",
+                        "javadoc": null
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "package_name": "org.springframework.samples.petclinic.owner",
+        "classes": [
+            {
+                "class_name": "PetValidator",
+                "methods": [
+                    {
+                        "id": "e43c2be3",
+                        "method_name": "validate",
+                        "signature": "public void validate(Object obj, Errors errors)",
+                        "code": "\t@Override\n\tpublic void validate(Object obj, Errors errors) {\n\t\tPet pet = (Pet) obj;\n\t\tString name = pet.getName();\n\t\t// name validation\n\t\tif (!StringUtils.hasLength(name)) {\n\t\t\terrors.rejectValue(\"name\", REQUIRED, REQUIRED);\n\t\t}\n\n\t\t// type validation\n\t\tif (pet.isNew() && pet.getType() == null) {\n\t\t\terrors.rejectValue(\"type\", REQUIRED, REQUIRED);\n\t\t}\n\n\t\t// birth date validation\n\t\tif (pet.getBirthDate() == null) {\n\t\t\terrors.rejectValue(\"birthDate\", REQUIRED, REQUIRED);\n",
+                        "javadoc": null
+                    },
+                    {
+                        "id": "49442715",
+                        "method_name": "supports",
+                        "signature": "public boolean supports(Class clazz)",
+                        "code": "\t@Override\n\tpublic boolean supports(Class<?> clazz) {\n\t\treturn Pet.class.isAssignableFrom(clazz);\n\t}\n",
+                        "javadoc": "/**\n\t * This Validator validates *just* Pet instances\n\t */"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "package_name": "org.springframework.samples.petclinic.owner",
+        "classes": [
+            {
+                "class_name": "Visit",
+                "methods": [
+                    {
+                        "id": "1286273b",
+                        "method_name": "getDate",
+                        "signature": "public LocalDate getDate()",
+                        "code": "\n\tpublic LocalDate getDate() {\n\t\treturn this.date;\n\t}\n",
+                        "javadoc": null
+                    },
+                    {
+                        "id": "aae52f00",
+                        "method_name": "setDate",
+                        "signature": "public void setDate(LocalDate date)",
+                        "code": "\n\tpublic void setDate(LocalDate date) {\n\t\tthis.date = date;\n\t}\n",
+                        "javadoc": null
+                    },
+                    {
+                        "id": "a45515fe",
+                        "method_name": "getDescription",
+                        "signature": "public String getDescription()",
+                        "code": "\n\tpublic String getDescription() {\n\t\treturn this.description;\n\t}\n",
+                        "javadoc": null
+                    },
+                    {
+                        "id": "b7bd7623",
+                        "method_name": "setDescription",
+                        "signature": "public void setDescription(String description)",
+                        "code": "\n\tpublic void setDescription(String description) {\n\t\tthis.description = description;\n\t}\n",
+                        "javadoc": null
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "package_name": "org.springframework.samples.petclinic.owner",
+        "classes": [
+            {
+                "class_name": "PetType",
+                "methods": []
+            }
+        ]
+    },
+    {
+        "package_name": "org.springframework.samples.petclinic.vet",
+        "classes": []
+    },
+    {
+        "package_name": "org.springframework.samples.petclinic.vet",
+        "classes": [
+            {
+                "class_name": "Vet",
+                "methods": [
+                    {
+                        "id": "5386f0cf",
+                        "method_name": "getSpecialtiesInternal",
+                        "signature": "public Set getSpecialtiesInternal()",
+                        "code": "\n\tpublic Set<Specialty> getSpecialtiesInternal() {\n\t\tif (this.specialties == null) {\n\t\t\tthis.specialties = new HashSet<>();\n\t\t}\n\t\treturn this.specialties;\n\t}\n",
+                        "javadoc": null
+                    },
+                    {
+                        "id": "33f9c544",
+                        "method_name": "setSpecialtiesInternal",
+                        "signature": "public void setSpecialtiesInternal(Set specialties)",
+                        "code": "\n\tpublic void setSpecialtiesInternal(Set<Specialty> specialties) {\n\t\tthis.specialties = specialties;\n\t}\n",
+                        "javadoc": null
+                    },
+                    {
+                        "id": "2b00233a",
+                        "method_name": "getSpecialties",
+                        "signature": "public List getSpecialties()",
+                        "code": "\t@XmlElement\n\tpublic List<Specialty> getSpecialties() {\n\t\tList<Specialty> sortedSpecs = new ArrayList<>(getSpecialtiesInternal());\n\t\tPropertyComparator.sort(sortedSpecs, new MutableSortDefinition(\"name\", true, true));\n\t\treturn Collections.unmodifiableList(sortedSpecs);\n\t}\n",
+                        "javadoc": null
+                    },
+                    {
+                        "id": "1de0341f",
+                        "method_name": "getNrOfSpecialties",
+                        "signature": "public int getNrOfSpecialties()",
+                        "code": "\n\tpublic int getNrOfSpecialties() {\n\t\treturn getSpecialtiesInternal().size();\n\t}\n",
+                        "javadoc": null
+                    },
+                    {
+                        "id": "0379ef46",
+                        "method_name": "addSpecialty",
+                        "signature": "public void addSpecialty(Specialty specialty)",
+                        "code": "\n\tpublic void addSpecialty(Specialty specialty) {\n\t\tgetSpecialtiesInternal().add(specialty);\n\t}\n",
+                        "javadoc": null
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "package_name": "org.springframework.samples.petclinic.vet",
+        "classes": [
+            {
+                "class_name": "Vets",
+                "methods": [
+                    {
+                        "id": "9bcecdaa",
+                        "method_name": "getVetList",
+                        "signature": "public List getVetList()",
+                        "code": "\t@XmlElement\n\tpublic List<Vet> getVetList() {\n\t\tif (vets == null) {\n\t\t\tvets = new ArrayList<>();\n\t\t}\n\t\treturn vets;\n\t}\n",
+                        "javadoc": null
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "package_name": "org.springframework.samples.petclinic.vet",
+        "classes": [
+            {
+                "class_name": "VetController",
+                "methods": [
+                    {
+                        "id": "f839974c",
+                        "method_name": "showVetList",
+                        "signature": "public String showVetList(int page, Model model)",
+                        "code": "\t@GetMapping(\"/vets.html\")\n\tpublic String showVetList(@RequestParam(defaultValue = \"1\") int page, Model model) {\n\t\t// Here we are returning an object of type 'Vets' rather than a collection of Vet\n\t\t// objects so it is simpler for Object-Xml mapping\n\t\tVets vets = new Vets();\n\t\tPage<Vet> paginated = findPaginated(page);\n\t\tvets.getVetList().addAll(paginated.toList());\n\t\treturn addPaginationModel(page, paginated, model);\n\n",
+                        "javadoc": null
+                    },
+                    {
+                        "id": "ed3685a1",
+                        "method_name": "addPaginationModel",
+                        "signature": "private String addPaginationModel(int page, Page paginated, Model model)",
+                        "code": "\n\tprivate String addPaginationModel(int page, Page<Vet> paginated, Model model) {\n\t\tList<Vet> listVets = paginated.getContent();\n\t\tmodel.addAttribute(\"currentPage\", page);\n\t\tmodel.addAttribute(\"totalPages\", paginated.getTotalPages());\n\t\tmodel.addAttribute(\"totalItems\", paginated.getTotalElements());\n\t\tmodel.addAttribute(\"listVets\", listVets);\n\t\treturn \"vets/vetList\";\n\t}\n",
+                        "javadoc": null
+                    },
+                    {
+                        "id": "99ceb905",
+                        "method_name": "findPaginated",
+                        "signature": "private Page findPaginated(int page)",
+                        "code": "\n\tprivate Page<Vet> findPaginated(int page) {\n\t\tint pageSize = 5;\n\t\tPageable pageable = PageRequest.of(page - 1, pageSize);\n\t\treturn vetRepository.findAll(pageable);\n\t}\n",
+                        "javadoc": null
+                    },
+                    {
+                        "id": "ccb05e2c",
+                        "method_name": "showResourcesVetList",
+                        "signature": "public Vets showResourcesVetList()",
+                        "code": "\t@GetMapping({ \"/vets\" })\n\tpublic @ResponseBody Vets showResourcesVetList() {\n\t\t// Here we are returning an object of type 'Vets' rather than a collection of Vet\n\t\t// objects so it is simpler for JSon/Object mapping\n\t\tVets vets = new Vets();\n\t\tvets.getVetList().addAll(this.vetRepository.findAll());\n\t\treturn vets;\n\t}\n",
+                        "javadoc": null
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "package_name": "org.springframework.samples.petclinic.vet",
+        "classes": [
+            {
+                "class_name": "Specialty",
+                "methods": []
+            }
+        ]
+    },
+    {
+        "package_name": "org.springframework.samples.petclinic.model",
+        "classes": [
+            {
+                "class_name": "NamedEntity",
+                "methods": [
+                    {
+                        "id": "c65cea93",
+                        "method_name": "getName",
+                        "signature": "public String getName()",
+                        "code": "\n\tpublic String getName() {\n\t\treturn this.name;\n\t}\n",
+                        "javadoc": null
+                    },
+                    {
+                        "id": "c51ecd38",
+                        "method_name": "setName",
+                        "signature": "public void setName(String name)",
+                        "code": "\n\tpublic void setName(String name) {\n\t\tthis.name = name;\n\t}\n",
+                        "javadoc": null
+                    },
+                    {
+                        "id": "a3207614",
+                        "method_name": "toString",
+                        "signature": "public String toString()",
+                        "code": "\t@Override\n\tpublic String toString() {\n\t\treturn this.getName();\n\t}\n",
+                        "javadoc": null
+                    },
+                    {
+                        "id": "98ba3afb",
+                        "method_name": "equals",
+                        "signature": "public boolean equals(Object obj)",
+                        "code": "\t@Override\n\tpublic boolean equals(Object obj){\n\t\tif (this == obj)\n\t\t\treturn true;\n\t\tif (obj == null)\n\t\t\treturn false;\n\t\tif (getClass() != obj.getClass())\n\t\t\treturn false;\n\t\tNamedEntity source = (NamedEntity) obj;\n\t\treturn Objects.equals(name, source.getName());\n\t}\n",
+                        "javadoc": null
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "package_name": "org.springframework.samples.petclinic.model",
+        "classes": [
+            {
+                "class_name": "Person",
+                "methods": [
+                    {
+                        "id": "28b319fd",
+                        "method_name": "getFirstName",
+                        "signature": "public String getFirstName()",
+                        "code": "\n\tpublic String getFirstName() {\n\t\treturn this.firstName;\n\t}\n",
+                        "javadoc": null
+                    },
+                    {
+                        "id": "e31023a2",
+                        "method_name": "setFirstName",
+                        "signature": "public void setFirstName(String firstName)",
+                        "code": "\n\tpublic void setFirstName(String firstName) {\n\t\tthis.firstName = firstName;\n\t}\n",
+                        "javadoc": null
+                    },
+                    {
+                        "id": "0481cc3c",
+                        "method_name": "getLastName",
+                        "signature": "public String getLastName()",
+                        "code": "\n\tpublic String getLastName() {\n\t\treturn this.lastName;\n\t}\n",
+                        "javadoc": null
+                    },
+                    {
+                        "id": "0f339384",
+                        "method_name": "setLastName",
+                        "signature": "public void setLastName(String lastName)",
+                        "code": "\n\tpublic void setLastName(String lastName) {\n\t\tthis.lastName = lastName;\n\t}\n",
+                        "javadoc": null
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "package_name": "org.springframework.samples.petclinic.model",
+        "classes": []
+    },
+    {
+        "package_name": "org.springframework.samples.petclinic.model",
+        "classes": [
+            {
+                "class_name": "BaseEntity",
+                "methods": [
+                    {
+                        "id": "1ad56c36",
+                        "method_name": "getId",
+                        "signature": "public Integer getId()",
+                        "code": "\n\tpublic Integer getId() {\n\t\treturn id;\n\t}\n",
+                        "javadoc": null
+                    },
+                    {
+                        "id": "94796ad2",
+                        "method_name": "setId",
+                        "signature": "public void setId(Integer id)",
+                        "code": "\n\tpublic void setId(Integer id) {\n\t\tthis.id = id;\n\t}\n",
+                        "javadoc": null
+                    },
+                    {
+                        "id": "040959e3",
+                        "method_name": "isNew",
+                        "signature": "public boolean isNew()",
+                        "code": "\n\tpublic boolean isNew() {\n\t\treturn this.id == null;\n\t}\n",
+                        "javadoc": null
+                    },
+                    {
+                        "id": "b59234b5",
+                        "method_name": "equals",
+                        "signature": "public boolean equals(Object obj)",
+                        "code": "\t@Override\n\tpublic boolean equals(Object obj){\n\t\tif (this == obj)\n\t\t\treturn true;\n\t\tif (obj == null)\n\t\t\treturn false;\n\t\tif (getClass() != obj.getClass())\n\t\t\treturn false;\n\t\tBaseEntity source = (BaseEntity) obj;\n\t\treturn Objects.equals(id, source.id);\n\t}\n",
+                        "javadoc": null
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "package_name": "org.springframework.samples.petclinic.system",
+        "classes": [
+            {
+                "class_name": "WelcomeController",
+                "methods": [
+                    {
+                        "id": "ca7ff8b6",
+                        "method_name": "welcome",
+                        "signature": "public String welcome()",
+                        "code": "\t@GetMapping(\"/\")\n\tpublic String welcome() {\n\t\tint pageSize = 5;\n\t\tint page = 1;\n\t\tString lastName = \"Black\";\n\n//\t\tPageable pageable = PageRequest.of(page - 1, pageSize);\n//\t\tPage<Owner> ownersResults = owners.findAll();\n//\t\townersResults.getContent()\n//\t\tmodel.addAttribute(\"listOwners\", ownersResults);\n//\t\tList<Owner> listOwners = owners.findAll(pageable);\n//\t\tmodel.addAttribute(\"listOwners\", listOwners);\n\n//\t\tOptional<Owner> foundPerson = owners.findByLastName(lastName);\n//\t\tList<Owner> listOwners = new ArrayList<>();\n//\t\tif(foundPerson.isPresent())\n//\t\t\tlistOwners.add(foundPerson.get());\n//\t\tmodel.addAttribute(\"listOwners\", listOwners);\n\n\n\t\treturn \"welcome\";\n\t}\n",
+                        "javadoc": null
+                    },
+                    {
+                        "id": "4d576b6e",
+                        "method_name": "findOwner",
+                        "signature": "public Owner findOwner(Integer ownerId)",
+                        "code": "\t@GetMapping(\"/wowner\")\n\tpublic Owner findOwner(@PathVariable(name = \"ownerId\", required = false) Integer ownerId) {\n\t\treturn ownerId == null ? new Owner() : this.owners.findById(ownerId).get();\n\t}\n",
+                        "javadoc": null
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "package_name": "org.springframework.samples.petclinic.system",
+        "classes": [
+            {
+                "class_name": "CrashController",
+                "methods": [
+                    {
+                        "id": "00bc5c18",
+                        "method_name": "triggerException",
+                        "signature": "public String triggerException()",
+                        "code": "\t@GetMapping(\"/oups\")\n\tpublic String triggerException() {\n\t\tthrow new RuntimeException(\n\t\t\t\t\"Expected: controller used to showcase what \" + \"happens when an exception is thrown\");\n",
+                        "javadoc": null
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "package_name": null,
+        "classes": []
+    }
+]

@@ -1,0 +1,259 @@
+[
+    {
+        "package_name": "example",
+        "classes": [
+            {
+                "class_name": "ExampleController",
+                "methods": [
+                    {
+                        "method_name": "hello",
+                        "signature": "ReferenceType(arguments=None, dimensions=[], name=String, sub_type=None) hello[]",
+                        "source_code": [
+                            33,
+                            12
+                        ],
+                        "javadoc": null
+                    },
+                    {
+                        "method_name": "hello",
+                        "signature": "ReferenceType(arguments=None, dimensions=[], name=String, sub_type=None) hello[FormalParameter(annotations=[Annotation(element=None, name=PathVariable)], modifiers={'final'}, name=lastName, type=ReferenceType(arguments=None, dimensions=[], name=String, sub_type=None), varargs=False)]",
+                        "source_code": [
+                            38,
+                            12
+                        ],
+                        "javadoc": null
+                    },
+                    {
+                        "method_name": "weather",
+                        "signature": "ReferenceType(arguments=None, dimensions=[], name=String, sub_type=None) weather[]",
+                        "source_code": [
+                            69,
+                            12
+                        ],
+                        "javadoc": null
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "package_name": "example",
+        "classes": [
+            {
+                "class_name": "ExampleApplication",
+                "methods": [
+                    {
+                        "method_name": "main",
+                        "signature": "None main[FormalParameter(annotations=[], modifiers=set(), name=args, type=ReferenceType(arguments=None, dimensions=[None], name=String, sub_type=None), varargs=False)]",
+                        "source_code": [
+                            14,
+                            16
+                        ],
+                        "javadoc": null
+                    },
+                    {
+                        "method_name": "restTemplate",
+                        "signature": "ReferenceType(arguments=None, dimensions=[], name=RestTemplate, sub_type=None) restTemplate[]",
+                        "source_code": [
+                            19,
+                            9
+                        ],
+                        "javadoc": null
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "package_name": "example.person",
+        "classes": [
+            {
+                "class_name": "Person",
+                "methods": [
+                    {
+                        "method_name": "getId",
+                        "signature": "BasicType(dimensions=[], name=int) getId[]",
+                        "source_code": [
+                            25,
+                            12
+                        ],
+                        "javadoc": null
+                    },
+                    {
+                        "method_name": "getFirstName",
+                        "signature": "ReferenceType(arguments=None, dimensions=[], name=String, sub_type=None) getFirstName[]",
+                        "source_code": [
+                            29,
+                            12
+                        ],
+                        "javadoc": null
+                    },
+                    {
+                        "method_name": "getLastName",
+                        "signature": "ReferenceType(arguments=None, dimensions=[], name=String, sub_type=None) getLastName[]",
+                        "source_code": [
+                            33,
+                            12
+                        ],
+                        "javadoc": null
+                    },
+                    {
+                        "method_name": "equals",
+                        "signature": "BasicType(dimensions=[], name=boolean) equals[FormalParameter(annotations=[], modifiers=set(), name=o, type=ReferenceType(arguments=None, dimensions=[], name=Object, sub_type=None), varargs=False)]",
+                        "source_code": [
+                            38,
+                            12
+                        ],
+                        "javadoc": null
+                    },
+                    {
+                        "method_name": "hashCode",
+                        "signature": "BasicType(dimensions=[], name=int) hashCode[]",
+                        "source_code": [
+                            48,
+                            12
+                        ],
+                        "javadoc": null
+                    },
+                    {
+                        "method_name": "toString",
+                        "signature": "ReferenceType(arguments=None, dimensions=[], name=String, sub_type=None) toString[]",
+                        "source_code": [
+                            53,
+                            12
+                        ],
+                        "javadoc": null
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "package_name": "example.person",
+        "classes": []
+    },
+    {
+        "package_name": "example.weather",
+        "classes": [
+            {
+                "class_name": "WeatherResponse",
+                "methods": [
+                    {
+                        "method_name": "getSummary",
+                        "signature": "ReferenceType(arguments=None, dimensions=[], name=String, sub_type=None) getSummary[]",
+                        "source_code": [
+                            22,
+                            12
+                        ],
+                        "javadoc": null
+                    },
+                    {
+                        "method_name": "getWeather",
+                        "signature": "ReferenceType(arguments=[TypeArgument(pattern_type=None, type=ReferenceType(arguments=None, dimensions=[], name=Weather, sub_type=None))], dimensions=[], name=List, sub_type=None) getWeather[]",
+                        "source_code": [
+                            28,
+                            12
+                        ],
+                        "javadoc": null
+                    },
+                    {
+                        "method_name": "equals",
+                        "signature": "BasicType(dimensions=[], name=boolean) equals[FormalParameter(annotations=[], modifiers=set(), name=o, type=ReferenceType(arguments=None, dimensions=[], name=Object, sub_type=None), varargs=False)]",
+                        "source_code": [
+                            33,
+                            12
+                        ],
+                        "javadoc": null
+                    },
+                    {
+                        "method_name": "hashCode",
+                        "signature": "BasicType(dimensions=[], name=int) hashCode[]",
+                        "source_code": [
+                            41,
+                            12
+                        ],
+                        "javadoc": null
+                    },
+                    {
+                        "method_name": "toString",
+                        "signature": "ReferenceType(arguments=None, dimensions=[], name=String, sub_type=None) toString[]",
+                        "source_code": [
+                            46,
+                            12
+                        ],
+                        "javadoc": null
+                    }
+                ]
+            },
+            {
+                "class_name": "Weather",
+                "methods": [
+                    {
+                        "method_name": "getMain",
+                        "signature": "ReferenceType(arguments=None, dimensions=[], name=String, sub_type=None) getMain[]",
+                        "source_code": [
+                            64,
+                            16
+                        ],
+                        "javadoc": null
+                    },
+                    {
+                        "method_name": "getDescription",
+                        "signature": "ReferenceType(arguments=None, dimensions=[], name=String, sub_type=None) getDescription[]",
+                        "source_code": [
+                            68,
+                            16
+                        ],
+                        "javadoc": null
+                    },
+                    {
+                        "method_name": "equals",
+                        "signature": "BasicType(dimensions=[], name=boolean) equals[FormalParameter(annotations=[], modifiers=set(), name=o, type=ReferenceType(arguments=None, dimensions=[], name=Object, sub_type=None), varargs=False)]",
+                        "source_code": [
+                            73,
+                            16
+                        ],
+                        "javadoc": null
+                    },
+                    {
+                        "method_name": "hashCode",
+                        "signature": "BasicType(dimensions=[], name=int) hashCode[]",
+                        "source_code": [
+                            82,
+                            16
+                        ],
+                        "javadoc": null
+                    },
+                    {
+                        "method_name": "toString",
+                        "signature": "ReferenceType(arguments=None, dimensions=[], name=String, sub_type=None) toString[]",
+                        "source_code": [
+                            87,
+                            16
+                        ],
+                        "javadoc": null
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "package_name": "example.weather",
+        "classes": [
+            {
+                "class_name": "WeatherClient",
+                "methods": [
+                    {
+                        "method_name": "fetchWeather",
+                        "signature": "ReferenceType(arguments=[TypeArgument(pattern_type=None, type=ReferenceType(arguments=None, dimensions=[], name=WeatherResponse, sub_type=None))], dimensions=[], name=Optional, sub_type=None) fetchWeather[]",
+                        "source_code": [
+                            29,
+                            12
+                        ],
+                        "javadoc": null
+                    }
+                ]
+            }
+        ]
+    }
+]

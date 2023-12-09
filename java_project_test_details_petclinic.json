@@ -1,0 +1,492 @@
+[
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.owner",
+        "test_method_name": "testGetDescriptionReturningEmptyString",
+        "mut_in_name": "getDescription",
+        "source_code": "  @Test\n  public void testGetDescriptionReturningEmptyString()  throws Throwable  {\n      Visit visit0 = new Visit();\n      visit0.setDescription(\"\");\n      String string0 = visit0.getDescription();\n      assertEquals(\"\", string0);\n  }\n",
+        "source_method_id": "a45515fe"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.owner",
+        "test_method_name": "testSetDate",
+        "mut_in_name": "setDate",
+        "source_code": "  @Test\n  public void testSetDate()  throws Throwable  {\n      Visit visit0 = new Visit();\n      visit0.setDate((LocalDate) null);\n      LocalDate localDate0 = visit0.getDate();\n      assertNull(localDate0);\n  }\n",
+        "source_method_id": "aae52f00"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.owner",
+        "test_method_name": "testGetDescriptionReturningNonEmptyString",
+        "mut_in_name": "getDescription",
+        "source_code": "  @Test\n  public void testGetDescriptionReturningNonEmptyString()  throws Throwable  {\n      Visit visit0 = new Visit();\n      visit0.setDescription(\"org.springframework.samples.petclinic.owner.Visit\");\n      String string0 = visit0.getDescription();\n      assertEquals(\"org.springframework.samples.petclinic.owner.Visit\", string0);\n  }\n",
+        "source_method_id": "a45515fe"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.owner",
+        "test_method_name": "testGetDescriptionReturningNull",
+        "mut_in_name": "getDescription",
+        "source_code": "  @Test\n  public void testGetDescriptionReturningNull()  throws Throwable  {\n      Visit visit0 = new Visit();\n      String string0 = visit0.getDescription();\n      assertNull(string0);\n  }\n",
+        "source_method_id": "a45515fe"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.owner",
+        "test_method_name": "testGetDateReturningNonNull",
+        "mut_in_name": "getDate",
+        "source_code": "  @Test\n  public void testGetDateReturningNonNull()  throws Throwable  {\n      Visit visit0 = new Visit();\n      LocalDate localDate0 = visit0.getDate();\n      assertNotNull(localDate0);\n  }\n",
+        "source_method_id": "1286273b"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.owner",
+        "test_method_name": "testGetTelephoneReturningNonEmptyString",
+        "mut_in_name": "getTelephone",
+        "source_code": "  @Test\n  public void testGetTelephoneReturningNonEmptyString()  throws Throwable  {\n      Owner owner0 = new Owner();\n      owner0.setTelephone(\"RUNTIME_OR_ERROR\");\n      String string0 = owner0.getTelephone();\n      assertEquals(\"RUNTIME_OR_ERROR\", string0);\n  }\n",
+        "source_method_id": "35c91ad5"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.owner",
+        "test_method_name": "testGetPetsReturningListWhereIsEmptyIsFalseAndListWhereSizeIsPositive",
+        "mut_in_name": "getPets",
+        "source_code": "  @Test\n  public void testGetPetsReturningListWhereIsEmptyIsFalseAndListWhereSizeIsPositive()  throws Throwable  {\n      Owner owner0 = new Owner();\n      Pet pet0 = new Pet();\n      owner0.addPet(pet0);\n      List<Pet> list0 = owner0.getPets();\n      assertTrue(list0.contains(pet0));\n  }\n",
+        "source_method_id": "ee1cd327"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.owner",
+        "test_method_name": "testGetPetTaking2ArgumentsReturningPetWhereIsNewIsFalse",
+        "mut_in_name": "getPet",
+        "source_code": "  @Test\n  public void testGetPetTaking2ArgumentsReturningPetWhereIsNewIsFalse()  throws Throwable  {\n      Owner owner0 = new Owner();\n      Pet pet0 = new Pet();\n      owner0.addPet(pet0);\n      Integer integer0 = new Integer(1);\n      pet0.setId(integer0);\n      pet0.setName(\"*\");\n      Pet pet1 = owner0.getPet(\"*\", true);\n      assertEquals(1, (int)pet1.getId());\n  }\n",
+        "source_method_id": "986d5ef2"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.owner",
+        "test_method_name": "testGetPetTakingStringReturningPetWhereIsNewIsFalse",
+        "mut_in_name": "getPet",
+        "source_code": "  @Test\n  public void testGetPetTakingStringReturningPetWhereIsNewIsFalse()  throws Throwable  {\n      Owner owner0 = new Owner();\n      Pet pet0 = new Pet();\n      owner0.addPet(pet0);\n      Integer integer0 = new Integer(1);\n      pet0.setId(integer0);\n      pet0.setName(\"*\");\n      Pet pet1 = owner0.getPet(\"*\");\n      assertEquals(\"*\", pet1.toString());\n  }\n",
+        "source_method_id": "986d5ef2"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.owner",
+        "test_method_name": "testGetCityReturningNonEmptyString",
+        "mut_in_name": "getCity",
+        "source_code": "  @Test\n  public void testGetCityReturningNonEmptyString()  throws Throwable  {\n      Owner owner0 = new Owner();\n      owner0.setCity(\".^Rkx\");\n      String string0 = owner0.getCity();\n      assertEquals(\".^Rkx\", string0);\n  }\n",
+        "source_method_id": "fb95cecb"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.owner",
+        "test_method_name": "testGetCityReturningEmptyString",
+        "mut_in_name": "getCity",
+        "source_code": "  @Test\n  public void testGetCityReturningEmptyString()  throws Throwable  {\n      Owner owner0 = new Owner();\n      owner0.setCity(\"\");\n      String string0 = owner0.getCity();\n      assertEquals(\"\", string0);\n  }\n",
+        "source_method_id": "fb95cecb"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.owner",
+        "test_method_name": "testGetAddressReturningNonEmptyString",
+        "mut_in_name": "getAddress",
+        "source_code": "  @Test\n  public void testGetAddressReturningNonEmptyString()  throws Throwable  {\n      Owner owner0 = new Owner();\n      owner0.setAddress(\"4Qu\\\"zgps_#c_UTxU2\");\n      String string0 = owner0.getAddress();\n      assertEquals(\"4Qu\\\"zgps_#c_UTxU2\", string0);\n  }\n",
+        "source_method_id": "ab6ac1fe"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.owner",
+        "test_method_name": "testAddVisitReturningOwnerWhereIsNewIsTrue",
+        "mut_in_name": "addVisit",
+        "source_code": "  @Test\n  public void testAddVisitReturningOwnerWhereIsNewIsTrue()  throws Throwable  {\n      Owner owner0 = new Owner();\n      Pet pet0 = new Pet();\n      owner0.addPet(pet0);\n      Integer integer0 = new Integer(1);\n      pet0.setId(integer0);\n      Visit visit0 = new Visit();\n      Owner owner1 = owner0.addVisit(integer0, visit0);\n      assertTrue(owner1.isNew());\n  }\n",
+        "source_method_id": "58d573b6"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.owner",
+        "test_method_name": "testAddVisitReturningOwnerWhereIsNewIsFalse",
+        "mut_in_name": "addVisit",
+        "source_code": "  @Test\n  public void testAddVisitReturningOwnerWhereIsNewIsFalse()  throws Throwable  {\n      Owner owner0 = new Owner();\n      Pet pet0 = new Pet();\n      owner0.addPet(pet0);\n      Integer integer0 = new Integer(448);\n      owner0.setId(integer0);\n      pet0.setId(integer0);\n      Visit visit0 = new Visit();\n      Owner owner1 = owner0.addVisit(integer0, visit0);\n      assertNull(owner1.getAddress());\n  }\n",
+        "source_method_id": "58d573b6"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.owner",
+        "test_method_name": "testGetPetTaking2ArgumentsThrowsNullPointerException",
+        "mut_in_name": "getPet",
+        "source_code": "  @Test\n  public void testGetPetTaking2ArgumentsThrowsNullPointerException()  throws Throwable  {\n      Owner owner0 = new Owner();\n      // Undeclared exception!\n      try {\n        owner0.getPet((String) null, true);\n",
+        "source_method_id": "986d5ef2"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.owner",
+        "test_method_name": "testGetPetTakingStringThrowsNullPointerException",
+        "mut_in_name": "getPet",
+        "source_code": "  @Test\n  public void testGetPetTakingStringThrowsNullPointerException()  throws Throwable  {\n      Owner owner0 = new Owner();\n      // Undeclared exception!\n      try {\n        owner0.getPet((String) null);\n",
+        "source_method_id": "986d5ef2"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.owner",
+        "test_method_name": "testAddPetThrowsNullPointerException",
+        "mut_in_name": "addPet",
+        "source_code": "  @Test\n  public void testAddPetThrowsNullPointerException()  throws Throwable  {\n      Owner owner0 = new Owner();\n      // Undeclared exception!\n      try {\n        owner0.addPet((Pet) null);\n",
+        "source_method_id": "92f9dcdb"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.owner",
+        "test_method_name": "testGetPetTaking2ArgumentsReturningPetWhereIsNewIsTrue",
+        "mut_in_name": "getPet",
+        "source_code": "  @Test\n  public void testGetPetTaking2ArgumentsReturningPetWhereIsNewIsTrue()  throws Throwable  {\n      Owner owner0 = new Owner();\n      Pet pet0 = new Pet();\n      pet0.setName(\"YK3OvaVT$#\");\n      owner0.addPet(pet0);\n      Pet pet1 = owner0.getPet(\"YK3OvaVT$#\", false);\n      assertEquals(\"YK3OvaVT$#\", pet1.getName());\n  }\n",
+        "source_method_id": "986d5ef2"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.owner",
+        "test_method_name": "testGetPetTaking2ArgumentsWithFalse",
+        "mut_in_name": "getPet",
+        "source_code": "  @Test\n  public void testGetPetTaking2ArgumentsWithFalse()  throws Throwable  {\n      Owner owner0 = new Owner();\n      Pet pet0 = new Pet();\n      owner0.addPet(pet0);\n      Pet pet1 = owner0.getPet(\"HNCD$1-\", false);\n      assertNull(pet1);\n  }\n",
+        "source_method_id": "986d5ef2"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.owner",
+        "test_method_name": "testGetPetsReturningListWhereIsEmptyIsTrueAndListWhereSizeIsZero",
+        "mut_in_name": "getPets",
+        "source_code": "  @Test\n  public void testGetPetsReturningListWhereIsEmptyIsTrueAndListWhereSizeIsZero()  throws Throwable  {\n      Owner owner0 = new Owner();\n      List<Pet> list0 = owner0.getPets();\n      assertTrue(list0.isEmpty());\n  }\n",
+        "source_method_id": "ee1cd327"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.owner",
+        "test_method_name": "testGetPetTakingStringReturningPetWhereIsNewIsTrue",
+        "mut_in_name": "getPet",
+        "source_code": "  @Test\n  public void testGetPetTakingStringReturningPetWhereIsNewIsTrue()  throws Throwable  {\n      Owner owner0 = new Owner();\n      Pet pet0 = new Pet();\n      pet0.setName(\"*\");\n      owner0.addPet(pet0);\n      Pet pet1 = owner0.getPet(\"*\");\n      assertEquals(\"*\", pet1.toString());\n  }\n",
+        "source_method_id": "986d5ef2"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.owner",
+        "test_method_name": "testGetPetTaking2ArgumentsWithTrue",
+        "mut_in_name": "getPet",
+        "source_code": "  @Test\n  public void testGetPetTaking2ArgumentsWithTrue()  throws Throwable  {\n      Owner owner0 = new Owner();\n      Pet pet0 = new Pet();\n      owner0.addPet(pet0);\n      Pet pet1 = owner0.getPet(\"(@\\\"vp}q3tp\", true);\n      assertNull(pet1);\n  }\n",
+        "source_method_id": "986d5ef2"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.owner",
+        "test_method_name": "testGetPetTakingIntegerWithNegative",
+        "mut_in_name": "getPet",
+        "source_code": "  @Test\n  public void testGetPetTakingIntegerWithNegative()  throws Throwable  {\n      Owner owner0 = new Owner();\n      Pet pet0 = new Pet();\n      owner0.addPet(pet0);\n      Integer integer0 = new Integer(1);\n      pet0.setId(integer0);\n      Integer integer1 = new Integer((-303));\n      Pet pet1 = owner0.getPet(integer1);\n      assertNull(pet1);\n  }\n",
+        "source_method_id": "986d5ef2"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.owner",
+        "test_method_name": "testGetPetTakingIntegerReturningPetWhereIsNewIsFalse",
+        "mut_in_name": "getPet",
+        "source_code": "  @Test\n  public void testGetPetTakingIntegerReturningPetWhereIsNewIsFalse()  throws Throwable  {\n      Owner owner0 = new Owner();\n      Pet pet0 = new Pet();\n      owner0.addPet(pet0);\n      Integer integer0 = new Integer(1);\n      pet0.setId(integer0);\n      Pet pet1 = owner0.getPet(integer0);\n      assertNull(pet1.toString());\n  }\n",
+        "source_method_id": "986d5ef2"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.owner",
+        "test_method_name": "testAddPetWithPetWhereIsNewIsFalse",
+        "mut_in_name": "addPetWithPet",
+        "source_code": "  @Test\n  public void testAddPetWithPetWhereIsNewIsFalse()  throws Throwable  {\n      Owner owner0 = new Owner();\n      Pet pet0 = new Pet();\n      Integer integer0 = new Integer(1);\n      pet0.setId(integer0);\n      owner0.addPet(pet0);\n      assertNull(owner0.getFirstName());\n  }\n",
+        "source_method_id": null
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.owner",
+        "test_method_name": "testGetCityReturningNull",
+        "mut_in_name": "getCity",
+        "source_code": "  @Test\n  public void testGetCityReturningNull()  throws Throwable  {\n      Owner owner0 = new Owner();\n      String string0 = owner0.getCity();\n      assertNull(string0);\n  }\n",
+        "source_method_id": "fb95cecb"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.owner",
+        "test_method_name": "testGetPetTakingStringReturningNull",
+        "mut_in_name": "getPet",
+        "source_code": "  @Test\n  public void testGetPetTakingStringReturningNull()  throws Throwable  {\n      Owner owner0 = new Owner();\n      Pet pet0 = owner0.getPet(\"address\");\n      assertNull(pet0);\n  }\n",
+        "source_method_id": "986d5ef2"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.owner",
+        "test_method_name": "testGetTelephoneReturningNull",
+        "mut_in_name": "getTelephone",
+        "source_code": "  @Test\n  public void testGetTelephoneReturningNull()  throws Throwable  {\n      Owner owner0 = new Owner();\n      String string0 = owner0.getTelephone();\n      assertNull(string0);\n  }\n",
+        "source_method_id": "35c91ad5"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.owner",
+        "test_method_name": "testGetAddressReturningEmptyString",
+        "mut_in_name": "getAddress",
+        "source_code": "  @Test\n  public void testGetAddressReturningEmptyString()  throws Throwable  {\n      Owner owner0 = new Owner();\n      owner0.setAddress(\"\");\n      String string0 = owner0.getAddress();\n      assertEquals(\"\", string0);\n  }\n",
+        "source_method_id": "ab6ac1fe"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.owner",
+        "test_method_name": "testAddVisitThrowsIllegalArgumentException",
+        "mut_in_name": "addVisit",
+        "source_code": "  @Test\n  public void testAddVisitThrowsIllegalArgumentException()  throws Throwable  {\n      Owner owner0 = new Owner();\n      Integer integer0 = new Integer((-1064));\n      Visit visit0 = new Visit();\n      // Undeclared exception!\n      try {\n        owner0.addVisit(integer0, visit0);\n",
+        "source_method_id": "58d573b6"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.owner",
+        "test_method_name": "testToString",
+        "mut_in_name": "toString",
+        "source_code": "  @Test\n  public void testToString()  throws Throwable  {\n      Owner owner0 = new Owner();\n      String string0 = owner0.toString();\n      assertNotNull(string0);\n  }\n",
+        "source_method_id": "2c12f69b"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.owner",
+        "test_method_name": "testGetTelephoneReturningEmptyString",
+        "mut_in_name": "getTelephone",
+        "source_code": "  @Test\n  public void testGetTelephoneReturningEmptyString()  throws Throwable  {\n      Owner owner0 = new Owner();\n      owner0.setTelephone(\"\");\n      String string0 = owner0.getTelephone();\n      assertEquals(\"\", string0);\n  }\n",
+        "source_method_id": "35c91ad5"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.owner",
+        "test_method_name": "testGetPetTakingInteger",
+        "mut_in_name": "getPet",
+        "source_code": "  @Test\n  public void testGetPetTakingInteger()  throws Throwable  {\n      Owner owner0 = new Owner();\n      Pet pet0 = new Pet();\n      owner0.addPet(pet0);\n      Integer integer0 = new Integer(1);\n      Pet pet1 = owner0.getPet(integer0);\n      assertNull(pet1);\n  }\n",
+        "source_method_id": "986d5ef2"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.owner",
+        "test_method_name": "testGetAddressReturningNull",
+        "mut_in_name": "getAddress",
+        "source_code": "  @Test\n  public void testGetAddressReturningNull()  throws Throwable  {\n      Owner owner0 = new Owner();\n      String string0 = owner0.getAddress();\n      assertNull(string0);\n  }\n",
+        "source_method_id": "ab6ac1fe"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.owner",
+        "test_method_name": "testCreatesPetType",
+        "mut_in_name": "PetType",
+        "source_code": "  @Test\n  public void testCreatesPetType()  throws Throwable  {\n      PetType petType0 = new PetType();\n      assertNull(petType0.getName());\n  }\n",
+        "source_method_id": null
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.owner",
+        "test_method_name": "testGetTypeReturningPetTypeWhereIsNewIsFalse",
+        "mut_in_name": "getType",
+        "source_code": "  @Test\n  public void testGetTypeReturningPetTypeWhereIsNewIsFalse()  throws Throwable  {\n      Pet pet0 = new Pet();\n      PetType petType0 = new PetType();\n      Integer integer0 = new Integer(1);\n      petType0.setId(integer0);\n      pet0.setType(petType0);\n      PetType petType1 = pet0.getType();\n      assertEquals(1, (int)petType1.getId());\n  }\n",
+        "source_method_id": "16426451"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.owner",
+        "test_method_name": "testSetBirthDate",
+        "mut_in_name": "setBirthDate",
+        "source_code": "  @Test\n  public void testSetBirthDate()  throws Throwable  {\n      Pet pet0 = new Pet();\n      LocalDate localDate0 = MockLocalDate.now();\n      pet0.setBirthDate(localDate0);\n      LocalDate localDate1 = pet0.getBirthDate();\n      assertSame(localDate1, localDate0);\n  }\n",
+        "source_method_id": "6a59cc8d"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.owner",
+        "test_method_name": "testGetVisits",
+        "mut_in_name": "getVisits",
+        "source_code": "  @Test\n  public void testGetVisits()  throws Throwable  {\n      Pet pet0 = new Pet();\n      Collection<Visit> collection0 = pet0.getVisits();\n      assertNotNull(collection0);\n  }\n",
+        "source_method_id": "ed37b0e9"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.owner",
+        "test_method_name": "testGetTypeReturningPetTypeWhereIsNewIsTrue",
+        "mut_in_name": "getType",
+        "source_code": "  @Test\n  public void testGetTypeReturningPetTypeWhereIsNewIsTrue()  throws Throwable  {\n      Pet pet0 = new Pet();\n      PetType petType0 = new PetType();\n      pet0.setType(petType0);\n      PetType petType1 = pet0.getType();\n      assertTrue(petType1.isNew());\n  }\n",
+        "source_method_id": "16426451"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.owner",
+        "test_method_name": "testGetBirthDateReturningNull",
+        "mut_in_name": "getBirthDate",
+        "source_code": "  @Test\n  public void testGetBirthDateReturningNull()  throws Throwable  {\n      Pet pet0 = new Pet();\n      LocalDate localDate0 = pet0.getBirthDate();\n      assertNull(localDate0);\n  }\n",
+        "source_method_id": "772cba9f"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.owner",
+        "test_method_name": "testAddVisit",
+        "mut_in_name": "addVisit",
+        "source_code": "  @Test\n  public void testAddVisit()  throws Throwable  {\n      Pet pet0 = new Pet();\n      Visit visit0 = new Visit();\n      pet0.addVisit(visit0);\n      assertTrue(pet0.isNew());\n  }\n",
+        "source_method_id": "58d573b6"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.owner",
+        "test_method_name": "testGetTypeReturningNull",
+        "mut_in_name": "getType",
+        "source_code": "  @Test\n  public void testGetTypeReturningNull()  throws Throwable  {\n      Pet pet0 = new Pet();\n      PetType petType0 = pet0.getType();\n      assertNull(petType0);\n  }\n",
+        "source_method_id": "16426451"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.vet",
+        "test_method_name": "testGetSpecialtiesInternalReturningSetWhereIsEmptyIsFalse",
+        "mut_in_name": "getSpecialtiesInternal",
+        "source_code": "  @Test\n  public void testGetSpecialtiesInternalReturningSetWhereIsEmptyIsFalse()  throws Throwable  {\n      Vet vet0 = new Vet();\n      Specialty specialty0 = new Specialty();\n      vet0.addSpecialty(specialty0);\n      Set<Specialty> set0 = vet0.getSpecialtiesInternal();\n      assertTrue(set0.contains(specialty0));\n  }\n",
+        "source_method_id": "5386f0cf"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.vet",
+        "test_method_name": "testGetSpecialtiesThrowsIllegalArgumentException",
+        "mut_in_name": "getSpecialties",
+        "source_code": "  @Test\n  public void testGetSpecialtiesThrowsIllegalArgumentException()  throws Throwable  {\n      Vet vet0 = new Vet();\n      vet0.addSpecialty((Specialty) null);\n      Specialty specialty0 = new Specialty();\n      vet0.addSpecialty(specialty0);\n      // Undeclared exception!\n      try {\n        vet0.getSpecialties();\n",
+        "source_method_id": "2b00233a"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.vet",
+        "test_method_name": "testAddSpecialtyThrowsNullPointerException",
+        "mut_in_name": "addSpecialty",
+        "source_code": "  @Test\n  public void testAddSpecialtyThrowsNullPointerException()  throws Throwable  {\n      Vet vet0 = new Vet();\n      TreeSet<Specialty> treeSet0 = new TreeSet<Specialty>();\n      vet0.setSpecialtiesInternal(treeSet0);\n      // Undeclared exception!\n      try {\n        vet0.addSpecialty((Specialty) null);\n",
+        "source_method_id": "0379ef46"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.vet",
+        "test_method_name": "testGetSpecialtiesInternalReturningSetWhereIsEmptyIsTrue",
+        "mut_in_name": "getSpecialtiesInternal",
+        "source_code": "  @Test\n  public void testGetSpecialtiesInternalReturningSetWhereIsEmptyIsTrue()  throws Throwable  {\n      Vet vet0 = new Vet();\n      Specialty specialty0 = new Specialty();\n      vet0.getSpecialtiesInternal();\n      vet0.addSpecialty(specialty0);\n      assertNull(specialty0.getName());\n  }\n",
+        "source_method_id": "5386f0cf"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.vet",
+        "test_method_name": "testGetNrOfSpecialtiesReturningZero",
+        "mut_in_name": "getNrOfSpecialties",
+        "source_code": "  @Test\n  public void testGetNrOfSpecialtiesReturningZero()  throws Throwable  {\n      Vet vet0 = new Vet();\n      int int0 = vet0.getNrOfSpecialties();\n      assertEquals(0, int0);\n  }\n",
+        "source_method_id": "1de0341f"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.vet",
+        "test_method_name": "testGetSpecialties",
+        "mut_in_name": "getSpecialties",
+        "source_code": "  @Test\n  public void testGetSpecialties()  throws Throwable  {\n      Vet vet0 = new Vet();\n      List<Specialty> list0 = vet0.getSpecialties();\n      assertTrue(list0.isEmpty());\n  }\n",
+        "source_method_id": "2b00233a"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.vet",
+        "test_method_name": "testAddSpecialtyThrowsClassCastException",
+        "mut_in_name": "addSpecialty",
+        "source_code": "  @Test\n  public void testAddSpecialtyThrowsClassCastException()  throws Throwable  {\n      Vet vet0 = new Vet();\n      TreeSet<Specialty> treeSet0 = new TreeSet<Specialty>();\n      vet0.setSpecialtiesInternal(treeSet0);\n      Specialty specialty0 = new Specialty();\n      // Undeclared exception!\n      try {\n        vet0.addSpecialty(specialty0);\n",
+        "source_method_id": "0379ef46"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.vet",
+        "test_method_name": "testGetNrOfSpecialtiesReturningPositive",
+        "mut_in_name": "getNrOfSpecialties",
+        "source_code": "  @Test\n  public void testGetNrOfSpecialtiesReturningPositive()  throws Throwable  {\n      Vet vet0 = new Vet();\n      Specialty specialty0 = new Specialty();\n      vet0.addSpecialty(specialty0);\n      int int0 = vet0.getNrOfSpecialties();\n      assertEquals(1, int0);\n  }\n",
+        "source_method_id": "1de0341f"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.vet",
+        "test_method_name": "testCreatesVetsAndCallsGetVetList",
+        "mut_in_name": "Vets",
+        "source_code": "  @Test\n  public void testCreatesVetsAndCallsGetVetList()  throws Throwable  {\n      Vets vets0 = new Vets();\n      vets0.getVetList();\n      vets0.getVetList();\n      vets0.getVetList();\n      vets0.getVetList();\n      vets0.getVetList();\n      vets0.getVetList();\n      vets0.getVetList();\n      vets0.getVetList();\n      vets0.getVetList();\n      vets0.getVetList();\n      vets0.getVetList();\n      vets0.getVetList();\n      vets0.getVetList();\n      vets0.getVetList();\n      vets0.getVetList();\n      vets0.getVetList();\n      vets0.getVetList();\n      vets0.getVetList();\n      vets0.getVetList();\n      vets0.getVetList();\n      vets0.getVetList();\n      vets0.getVetList();\n      vets0.getVetList();\n      vets0.getVetList();\n      vets0.getVetList();\n      vets0.getVetList();\n      vets0.getVetList();\n      vets0.getVetList();\n      vets0.getVetList();\n      vets0.getVetList();\n      vets0.getVetList();\n      vets0.getVetList();\n      vets0.getVetList();\n  }\n",
+        "source_method_id": null
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.vet",
+        "test_method_name": "testCreatesSpecialty",
+        "mut_in_name": "Specialty",
+        "source_code": "  @Test\n  public void testCreatesSpecialty()  throws Throwable  {\n      Specialty specialty0 = new Specialty();\n      assertNull(specialty0.getName());\n  }\n",
+        "source_method_id": null
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.model",
+        "test_method_name": "testToStringReturningNonEmptyString",
+        "mut_in_name": "toString",
+        "source_code": "  @Test\n  public void testToStringReturningNonEmptyString()  throws Throwable  {\n      NamedEntity namedEntity0 = new NamedEntity();\n      namedEntity0.setName(\"oX-jnCmG%v\");\n      String string0 = namedEntity0.toString();\n      assertEquals(\"oX-jnCmG%v\", string0);\n  }\n",
+        "source_method_id": "a3207614"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.model",
+        "test_method_name": "testToStringReturningEmptyString",
+        "mut_in_name": "toString",
+        "source_code": "  @Test\n  public void testToStringReturningEmptyString()  throws Throwable  {\n      NamedEntity namedEntity0 = new NamedEntity();\n      namedEntity0.setName(\"\");\n      String string0 = namedEntity0.toString();\n      assertEquals(\"\", string0);\n  }\n",
+        "source_method_id": "a3207614"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.model",
+        "test_method_name": "testGetNameReturningEmptyString",
+        "mut_in_name": "getName",
+        "source_code": "  @Test\n  public void testGetNameReturningEmptyString()  throws Throwable  {\n      NamedEntity namedEntity0 = new NamedEntity();\n      namedEntity0.setName(\"\");\n      String string0 = namedEntity0.getName();\n      assertEquals(\"\", string0);\n  }\n",
+        "source_method_id": "c65cea93"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.model",
+        "test_method_name": "testGetNameReturningNull",
+        "mut_in_name": "getName",
+        "source_code": "  @Test\n  public void testGetNameReturningNull()  throws Throwable  {\n      NamedEntity namedEntity0 = new NamedEntity();\n      String string0 = namedEntity0.getName();\n      assertNull(string0);\n  }\n",
+        "source_method_id": "c65cea93"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.model",
+        "test_method_name": "testToStringReturningNull",
+        "mut_in_name": "toString",
+        "source_code": "  @Test\n  public void testToStringReturningNull()  throws Throwable  {\n      NamedEntity namedEntity0 = new NamedEntity();\n      String string0 = namedEntity0.toString();\n      assertNull(string0);\n  }\n",
+        "source_method_id": "a3207614"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.model",
+        "test_method_name": "testGetNameReturningNonEmptyString",
+        "mut_in_name": "getName",
+        "source_code": "  @Test\n  public void testGetNameReturningNonEmptyString()  throws Throwable  {\n      NamedEntity namedEntity0 = new NamedEntity();\n      namedEntity0.setName(\"oX-jnCmG%v\");\n      String string0 = namedEntity0.getName();\n      assertEquals(\"oX-jnCmG%v\", string0);\n  }\n",
+        "source_method_id": "c65cea93"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.model",
+        "test_method_name": "testGetLastNameReturningNonEmptyString",
+        "mut_in_name": "getLastName",
+        "source_code": "  @Test\n  public void testGetLastNameReturningNonEmptyString()  throws Throwable  {\n      Person person0 = new Person();\n      person0.setLastName(\"Lw*`onX`MIV%\");\n      String string0 = person0.getLastName();\n      assertEquals(\"Lw*`onX`MIV%\", string0);\n  }\n",
+        "source_method_id": "0481cc3c"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.model",
+        "test_method_name": "testGetFirstNameReturningNonEmptyString",
+        "mut_in_name": "getFirstName",
+        "source_code": "  @Test\n  public void testGetFirstNameReturningNonEmptyString()  throws Throwable  {\n      Person person0 = new Person();\n      person0.setFirstName(\"Lw*`onX`MIV%\");\n      String string0 = person0.getFirstName();\n      assertEquals(\"Lw*`onX`MIV%\", string0);\n  }\n",
+        "source_method_id": "28b319fd"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.model",
+        "test_method_name": "testGetFirstNameReturningEmptyString",
+        "mut_in_name": "getFirstName",
+        "source_code": "  @Test\n  public void testGetFirstNameReturningEmptyString()  throws Throwable  {\n      Person person0 = new Person();\n      person0.setFirstName(\"\");\n      String string0 = person0.getFirstName();\n      assertEquals(\"\", string0);\n  }\n",
+        "source_method_id": "28b319fd"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.model",
+        "test_method_name": "testGetLastNameReturningNull",
+        "mut_in_name": "getLastName",
+        "source_code": "  @Test\n  public void testGetLastNameReturningNull()  throws Throwable  {\n      Person person0 = new Person();\n      String string0 = person0.getLastName();\n      assertNull(string0);\n  }\n",
+        "source_method_id": "0481cc3c"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.model",
+        "test_method_name": "testGetLastNameReturningEmptyString",
+        "mut_in_name": "getLastName",
+        "source_code": "  @Test\n  public void testGetLastNameReturningEmptyString()  throws Throwable  {\n      Person person0 = new Person();\n      person0.setLastName(\"\");\n      String string0 = person0.getLastName();\n      assertEquals(\"\", string0);\n  }\n",
+        "source_method_id": "0481cc3c"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.model",
+        "test_method_name": "testGetFirstNameReturningNull",
+        "mut_in_name": "getFirstName",
+        "source_code": "  @Test\n  public void testGetFirstNameReturningNull()  throws Throwable  {\n      Person person0 = new Person();\n      String string0 = person0.getFirstName();\n      assertNull(string0);\n  }\n",
+        "source_method_id": "28b319fd"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.model",
+        "test_method_name": "testGetIdReturningZero",
+        "mut_in_name": "getId",
+        "source_code": "  @Test\n  public void testGetIdReturningZero()  throws Throwable  {\n      BaseEntity baseEntity0 = new BaseEntity();\n      Integer integer0 = new Integer(0);\n      baseEntity0.setId(integer0);\n      Integer integer1 = baseEntity0.getId();\n      assertEquals(0, (int)integer1);\n  }\n",
+        "source_method_id": "1ad56c36"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.model",
+        "test_method_name": "testGetIdReturningPositive",
+        "mut_in_name": "getId",
+        "source_code": "  @Test\n  public void testGetIdReturningPositive()  throws Throwable  {\n      BaseEntity baseEntity0 = new BaseEntity();\n      Integer integer0 = new Integer(2204);\n      baseEntity0.setId(integer0);\n      Integer integer1 = baseEntity0.getId();\n      assertEquals(2204, (int)integer1);\n  }\n",
+        "source_method_id": "1ad56c36"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.model",
+        "test_method_name": "testGetIdReturningNegative",
+        "mut_in_name": "getId",
+        "source_code": "  @Test\n  public void testGetIdReturningNegative()  throws Throwable  {\n      BaseEntity baseEntity0 = new BaseEntity();\n      Integer integer0 = new Integer((-884));\n      baseEntity0.setId(integer0);\n      Integer integer1 = baseEntity0.getId();\n      assertEquals((-884), (int)integer1);\n  }\n",
+        "source_method_id": "1ad56c36"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.model",
+        "test_method_name": "testIsNewReturningTrue",
+        "mut_in_name": "isNew",
+        "source_code": "  @Test\n  public void testIsNewReturningTrue()  throws Throwable  {\n      BaseEntity baseEntity0 = new BaseEntity();\n      boolean boolean0 = baseEntity0.isNew();\n      assertTrue(boolean0);\n  }\n",
+        "source_method_id": "040959e3"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.model",
+        "test_method_name": "testIsNewReturningFalse",
+        "mut_in_name": "isNew",
+        "source_code": "  @Test\n  public void testIsNewReturningFalse()  throws Throwable  {\n      BaseEntity baseEntity0 = new BaseEntity();\n      Integer integer0 = new Integer(0);\n      baseEntity0.setId(integer0);\n      boolean boolean0 = baseEntity0.isNew();\n      assertFalse(boolean0);\n  }\n",
+        "source_method_id": "040959e3"
+    },
+    {
+        "mut_package_name": "org.springframework.samples.petclinic.model",
+        "test_method_name": "testGetIdReturningNull",
+        "mut_in_name": "getId",
+        "source_code": "  @Test\n  public void testGetIdReturningNull()  throws Throwable  {\n      BaseEntity baseEntity0 = new BaseEntity();\n      Integer integer0 = baseEntity0.getId();\n      assertNull(integer0);\n  }\n",
+        "source_method_id": "1ad56c36"
+    }
+]
