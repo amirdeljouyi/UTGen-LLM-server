@@ -38,7 +38,7 @@ class Query:
         :return: the llm response of type Response containing the generated text by the llm.
         """
         return get_llm_response(prompt)
-
+        # return dummy_llm_response(prompt)
 
 def get_llm_response(prompt: Prompt) -> Response:
     """
@@ -62,14 +62,22 @@ def get_llm_response(prompt: Prompt) -> Response:
     #             "and javadoc of the"
     #             "method under test is given between the [SIGNATURE] and [/SIGNATURE] tags.[/INST]\n\n" +
     #             f"[CODE]\n{prompt.prompt_text}\n[/CODE]\n[SIGNATURE]\n{prompt.mut_signature_and_doc}\n[/SIGNATURE]\n")
-    constructed_prompt = (
-                    "[INST] <<SYS>> You are a Java developer optimizing JUnit tests for clarity. <</SYS>> Your task "
-                    "is to make a"
-                    "previously written JUnit test more understandable. The returned understandable test must be between the ["
-                    "TEST] and [/TEST] tags. Provide comments where necessary and rename variables and the test name to be "
-                    "understandable."
-                    "The previously written test to improve is between the [CODE] and [/CODE] tags."
-                    f"[CODE]\n{prompt.prompt_text}\n[/CODE]\n")
+    if prompt.prompt_type == "testname":
+        constructed_prompt = (
+            "[INST] suggest an understandable test method name which is descriptive for the following fragment of the test."
+            "Put only the understandable test method name in between the [TESTNAME] and [/TESTNAME] tags. "
+            "The previously fragment of the written test [CODE] and [/CODE] tags."
+            f"[CODE]\n{prompt.prompt_text}\n[/CODE]\n")
+        regex_test = r'\[TESTNAME](.*?)\[/TESTNAME]'
+    else:
+        constructed_prompt = (
+            "[INST] <<SYS>> You are a Java developer optimizing JUnit tests for clarity. <</SYS>> Your task "
+            "is to make a previously written JUnit test more understandable. The returned understandable test "
+            "must be between the [TEST] and [/TEST] tags, and do not put it in wrapper class. Provide comments where necessary, rename variables, "
+            "improve test data, and rename the test name to be understandable."
+            "The previously written test to improve is between the [CODE] and [/CODE] tags."
+            f"[CODE]\n{prompt.prompt_text}\n[/CODE]\n")
+        regex_test = r'\[TEST](.*?)\[/TEST]'
 
 
     print(constructed_prompt)   # Debugging : Print constructed prmopt
@@ -118,18 +126,18 @@ def get_llm_response(prompt: Prompt) -> Response:
 
 
         data = {
-            "model": "codellama",
+            "model": "codellama:7b-instruct",
             "prompt": constructed_prompt,
             "stream": False
         }
 
         response = requests.post(API_URL, headers=headers, data=json.dumps(data))
 
+
         if response.status_code == 200:
             response_text = response.text
             data = json.loads(response_text)
             try:
-                regex_test = r'\[TEST](.*?)\[/TEST]'
                 actual_response = data["response"]
                 print(actual_response)
                 # Extracting the specific response part from the entire response
@@ -149,6 +157,9 @@ def get_llm_response(prompt: Prompt) -> Response:
                     return Response(llm_response="ERROR: Something Went Wrong When Extracting Response")
         else:
             print("Error:", response.status_code, response.text)
+
+def dummy_llm_response(prompt: Prompt) -> Response:
+    return Response(llm_response=prompt.prompt_text)
 
 
 schema = strawberry.Schema(query=Query)
