@@ -69,6 +69,13 @@ def get_llm_response(prompt: Prompt) -> Response:
             "The previously fragment of the written test [CODE] and [/CODE] tags."
             f"[CODE]\n{prompt.prompt_text}\n[/CODE]\n")
         regex_test = r'\[TESTNAME](.*?)\[/TESTNAME]'
+    elif prompt.prompt_type == "testdata":
+        constructed_prompt = (
+            "[INST] improve the test data of the following fragment of the test in terms of understandability which is descriptive for the developers."
+            "Put only the refined test data in between the [TESTDATA] and [/TESTDATA] tags. "
+            "The previously fragment of the written test [CODE] and [/CODE] tags."
+            f"[CODE]\n{prompt.prompt_text}\n[/CODE]\n")
+        regex_test = r'\[TESTDATA](.*?)\[/TESTDATA]'
     else:
         constructed_prompt = (
             "[INST] <<SYS>> You are a Java developer optimizing JUnit tests for clarity. <</SYS>> Your task "
