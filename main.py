@@ -63,24 +63,51 @@ def get_llm_response(prompt: Prompt) -> Response:
     #             "method under test is given between the [SIGNATURE] and [/SIGNATURE] tags.[/INST]\n\n" +
     #             f"[CODE]\n{prompt.prompt_text}\n[/CODE]\n[SIGNATURE]\n{prompt.mut_signature_and_doc}\n[/SIGNATURE]\n")
     if prompt.prompt_type == "testname":
+        # constructed_prompt = (
+        #     "[INST] suggest an understandable test method name which is descriptive for the provided Java code. "
+        #     "the name should be exclusively UpperCamelCase, where each word begins with a capital letter."
+        #     "Put the understandable test method name in between the [TESTNAME] and [/TESTNAME] tags. "
+        #     "The test to name is between the [CODE] and [/CODE] tags.[/INST]\n"
+        #     f"[CODE]\n{prompt.prompt_text}\n[/CODE]\n")
         constructed_prompt = (
-            "[INST] suggest an understandable test method name which is descriptive for the following fragment of the test."
-            "Put only the understandable test method name in between the [TESTNAME] and [/TESTNAME] tags. "
-            "The previously fragment of the written test [CODE] and [/CODE] tags."
-            f"[CODE]\n{prompt.prompt_text}\n[/CODE]\n")
+            "[INST] As a detail-oriented developer, your task is to analyze the provided Java code and deduce a "
+            "descriptive test method name. Follow these steps:\n"
+            "1. Carefully read the Java code between the [CODE] tags.\n"
+            "2. Identify the primary functionality or purpose of the test.\n"
+            "3. Formulate a test method name that succinctly captures this functionality, adhering to lowerCamelCase "
+            "conventions.\n"
+            "4. Place your suggested test method name between the [TESTNAME] and [/TESTNAME] tags, ensuring it is "
+            "clear and precise without additional descriptions.\n"
+            "Remember, your focus is on clarity and precision. Use your expertise to provide a meaningful and "
+            "appropriate name.[/INST]\n"
+            f"[CODE]\n{prompt.prompt_text}\n[/CODE]\n"
+        )
+
         regex_test = r'\[TESTNAME](.*?)\[/TESTNAME]'
+
     elif prompt.prompt_type == "testdata":
         constructed_prompt = (
-            "[INST] improve the test data of the following fragment of the test in terms of understandability which is descriptive for the developers."
-            "Put only the refined test data in between the [TESTDATA] and [/TESTDATA] tags. "
-            "The previously fragment of the written test [CODE] and [/CODE] tags."
-            f"[CODE]\n{prompt.prompt_text}\n[/CODE]\n")
+            "[INST] As a meticulous Java developer focused on enhancing the clarity and effectiveness "
+            "of a test suite. Your task is to refine the test data within a given code fragment. Your goal is to "
+            "make the data more descriptive and representative of the situation being tested. \n\n"
+            "Please follow these steps:\n"
+            "1. Carefully review the provided code snippet.\n"
+            "2. Identify the key functionality the test is addressing.\n"
+            "3. Improve the test data by changing the primitive values and Strings (such as integers, doubles, strings,"
+            " chars) to more illustrative examples.\n"
+            "4. Place your Improved code between the [TESTDATA] and [/TESTDATA] tags when you are done with the "
+            "previous steps.\n\n"
+            "Remember, your modifications should only involve the test data, not the code structure or logic. "
+            "The code snippet you need to refine is between te [CODE] and [/CODE] tag.[/INST]\n"
+            f"[CODE]\n{prompt.prompt_text}\n[/CODE]\n\n"
+        )
         regex_test = r'\[TESTDATA](.*?)\[/TESTDATA]'
     else:
         constructed_prompt = (
             "[INST] <<SYS>> You are a Java developer optimizing JUnit tests for clarity. <</SYS>> Your task "
             "is to make a previously written JUnit test more understandable. The returned understandable test "
-            "must be between the [TEST] and [/TEST] tags, and do not put it in wrapper class. Provide comments where necessary, rename variables, "
+            "must be between the [TEST] and [/TEST] tags, and do not put it in wrapper class. Provide comments where "
+            "necessary, rename variables,"
             "improve test data, and rename the test name to be understandable."
             "The previously written test to improve is between the [CODE] and [/CODE] tags."
             f"[CODE]\n{prompt.prompt_text}\n[/CODE]\n")
@@ -150,14 +177,46 @@ def get_llm_response(prompt: Prompt) -> Response:
                 # Extracting the specific response part from the entire response
                 extracted_answer = re.findall(regex_test, actual_response, re.DOTALL)[0]
 
+                if prompt.prompt_type == "testname":
+                    chars_to_remove = " ()_"
+                    for char in chars_to_remove:
+                        extracted_answer = extracted_answer.replace(char, "")
+                elif prompt.prompt_type == "testdata":
+                    extracted_answer = re.findall(regex_test, actual_response, re.DOTALL)[-1]
+                    print("The extracted answer is:\n")
+                    print(repr(extracted_answer))
+
+                    split_string = extracted_answer.split("\n")
+                    answer_without_comments = []
+                    for i, line in enumerate(split_string):
+                        if "//" not in line:
+                            answer_without_comments.append(line)
+                    extracted_answer = "\n".join(answer_without_comments)
+
+
                 return Response(llm_response=extracted_answer)
             except:
                 try:
-                    regex_test = r'\```java (.*?)\```'
+                    regex_test = r'```(?:java )?(.*?)```'
                     actual_response = data["response"]
                     print(actual_response)
                     # Extracting the specific response part from the entire response
                     extracted_answer = re.findall(regex_test, actual_response, re.DOTALL)[0]
+                    if prompt.prompt_type == "testname":
+                        chars_to_remove = " ()_"
+                        for char in chars_to_remove:
+                            extracted_answer = extracted_answer(char, "")
+                    elif prompt.prompt_type == "testdata":
+                        extracted_answer = re.findall(regex_test, actual_response, re.DOTALL)[-1]
+                        print("The extracted answer is:\n")
+                        print(repr(extracted_answer))
+
+                        split_string = extracted_answer.split("\n")
+                        answer_without_comments = []
+                        for i, line in enumerate(split_string):
+                            if "//" not in line:
+                                answer_without_comments.append(line)
+                        extracted_answer = "\n".join(answer_without_comments)
 
                     return Response(llm_response=extracted_answer)
                 except:
