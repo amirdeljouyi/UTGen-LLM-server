@@ -63,3 +63,23 @@ java_test_code = "@Test\n    public void testBumpVersionWithIrrelevantData() {\n
     #                       "completes the request.\n\n### Instruction:\nWrite a Java method that takes two numbers and "
     #                       "calculates the power of the first number to the second number in a recursive way\n\n### "
     #                       "Response:")
+
+
+    =======================
+
+    {
+    prompt(prompt: {promptText: "java_code = """
+@Test
+public void testGetPetsReturningListWhereIsEmptyIsFalseAndListWhereSizeIsPositive() throws Throwable {
+    Owner owner0 = new Owner();
+    Pet pet0 = new Pet();
+    owner0.addPet(pet0);
+    List<Pet> list0 = owner0.getPets();
+    assertTrue(list0.contains(pet0));
+}
+""",
+           mutSignatureAndDoc: "/**\n * Bumps the version number at the specified position. If a pre-release label is provided, it is included in the bumped version.\n *\n * @param version     The version string to be bumped.\n * @param pos         The position of the version number to be bumped.\n * @param preRelease  An optional pre-release label.\n * @return The bumped version string.\n */\npublic String bumpVersion(String version, int pos, Optional<String> preRelease) {\n    // ... Method implementation would go here ...\n}\n",
+           promptType: "code gen"}){
+    llmResponse
+  }
+}
