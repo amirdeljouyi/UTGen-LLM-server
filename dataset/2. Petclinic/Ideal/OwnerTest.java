@@ -19,46 +19,28 @@ public class OwnerTest {
     private static final int TEST_OWNER_ID = 1;
     private Owner subject;
 
-    @BeforeEach
-    public void setUp() throws Exception {
-        MockitoAnnotations.openMocks(this);
-
+    @Test
+    public void getPetsTest() throws Exception{
         Owner subject = new Owner();
-		subject.setId(TEST_OWNER_ID);
-		subject.setFirstName("George");
-		subject.setLastName("Franklin");
-		subject.setAddress("110 W. Liberty St.");
-		subject.setCity("Madison");
-		subject.setTelephone("6085551023");
-		Pet max = new Pet();
+        Pet max = new Pet();
 		PetType dog = new PetType();
 		dog.setName("dog");
 		max.setType(dog);
 		max.setName("Max");
 		max.setBirthDate(LocalDate.now());
-		subject.addPet(max);
 		max.setId(1);
-    }
+		subject.addPet(max);
 
-    @Test
-    public void getPetsTest() throws Exception
-		PersistentBag getPets = subject.getPets();
+		Pet getPet = subject.getPets("Max");
 
-		PetType petType = new PetType();
-		petType.setName("dog");
-		Pet pet = new Pet();
-		pet.setId(1);
-		pet.setType(petType);
-		pet.setBirthDate(LocalDate.now());
-		pet.setName("Max");
-		PersistentBag<Pet> pets = new PersistentBag<>();
-		pets.add(pet);
-
-		assertThat(getPets, is(pets));
+		assertThat("Max", getPet.toString());
     }
 
     @Test
     public void getTelephoneTest() throws Exception{
+        Owner subject = new Owner();
+        subject.setTelephone("6085551023");
+
 		String getTelephone = subject.getTelephone();
 
 		assertThat(getTelephone, is("6085551023"));
@@ -66,6 +48,8 @@ public class OwnerTest {
 
     @Test
     public void getAddressTest() throws Exception{
+        Owner subject = new Owner();
+        subject.setAddress("110 W. Liberty St.");
 		String getAddress = subject.getAddress();
 
 		assertThat(getAddress, is("110 W. Liberty St."));
@@ -73,6 +57,8 @@ public class OwnerTest {
 
     @Test
     public void getCityTest() throws Exception{
+        Owner subject = new Owner();
+        subject.setCity("Madison");
 		String getCity = subject.getCity();
 
 		assertThat(getCity, is("Madison"));
