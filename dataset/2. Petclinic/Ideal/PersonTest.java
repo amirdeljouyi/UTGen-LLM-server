@@ -1,47 +1,74 @@
-package org.springframework.samples.petclinic.microtestcarver;
+package org.springframework.samples.petclinic.evosuite.model;
 
-import org.springframework.samples.petclinic.model.Person;
-
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-
-import java.util.Optional;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
-import static org.mockito.BDDMockito.anyString;
-import static org.mockito.BDDMockito.given;
+import org.junit.Assert.*;
+import org.evosuite.runtime.EvoRunner;
+import org.evosuite.runtime.EvoRunnerParameters;
+import org.junit.runner.RunWith;
+import org.springframework.samples.petclinic.model.Person;
+import org.springframework.samples.petclinic.evosuite.model.Person_ESTest_scaffolding;
 
 public class PersonTest {
 
-    private Person subject;
+  @Test
+  public void testGetLastNameReturningNonEmptyString()  throws Throwable  {
+      Person person0 = new Person();
+      person0.setLastName("Lw*`onX`MIV%");
+      String string0 = person0.getLastName();
+      assertEquals("Lw*`onX`MIV%", string0);
+  }
 
+  @Test
+  public void testGetFirstNameReturningNonEmptyString()  throws Throwable  {
+      Person person0 = new Person();
+      person0.setFirstName("Lw*`onX`MIV%");
+      String string0 = person0.getFirstName();
+      assertEquals("Lw*`onX`MIV%", string0);
+  }
 
-    @BeforeEach
-    public void setUp() throws Exception {
-        MockitoAnnotations.openMocks(this);
-        subject = new Person();
-
-		subject.setId(1);
-		subject.setFirstName("George");
-		subject.setLastName("Franklin");
-
-    }
+  @Test
+  public void testGetFirstName()  throws Throwable  {
+      Person person0 = new Person();
+      person0.setFirstName("George");
+      String string0 = person0.getFirstName();
+      assertEquals("George", string0);
+  }
 
     @Test
-    public void GetFirstName(){
-		String getFirstName = subject.getFirstName();
+  public void testGetLastName()  throws Throwable  {
+      Person person0 = new Person();
+      person0.setLastName("Franklin");
+      String string0 = person0.getLastName();
+      assertEquals("Franklin", string0);
+  }
 
-		assertThat(getFirstName, is("George"));
-    }
+  @Test
+  public void testGetFirstNameReturningEmptyString()  throws Throwable  {
+      Person person0 = new Person();
+      person0.setFirstName("");
+      String string0 = person0.getFirstName();
+      assertEquals("", string0);
+  }
 
-	@Test
-	public void GetLastName(){
-		String getLastName = subject.getLastName();
+  @Test
+  public void testGetLastNameReturningNull()  throws Throwable  {
+      Person person0 = new Person();
+      String string0 = person0.getLastName();
+      assertNull(string0);
+  }
 
-		assertThat(getLastName, is("Franklin"));
-	}
+  @Test
+  public void testGetLastNameReturningEmptyString()  throws Throwable  {
+      Person person0 = new Person();
+      person0.setLastName("");
+      String string0 = person0.getLastName();
+      assertEquals("", string0);
+  }
 
+  @Test
+  public void testGetFirstNameReturningNull()  throws Throwable  {
+      Person person0 = new Person();
+      String string0 = person0.getFirstName();
+      assertNull(string0);
+  }
 }
