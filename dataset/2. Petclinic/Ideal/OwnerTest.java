@@ -31,7 +31,7 @@ public class OwnerTest {
 		max.setId(1);
 		subject.addPet(max);
 
-		Pet getPet = subject.getPets("Max");
+		Pet getPet = subject.getPet("Max");
 
 		assertThat("Max", getPet.toString());
     }
