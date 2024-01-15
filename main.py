@@ -97,17 +97,19 @@ def get_llm_response(prompt: Prompt) -> Response:
             "3. Place your Improved code between the [TESTDATA] and [/TESTDATA] tags when you are done with the "
             "previous steps.\n\n"
             "The code snippet you need to refine is between te [CODE] and [/CODE] tag.[/INST]\n"
-            f"[CODE]\n{prompt.prompt_text}\n[/CODE]\n\n"
+            f"[CODE]{prompt.prompt_text}\n[/CODE]\n\n"
         )
         regex_test = r'\[TESTDATA](.*?)\[/TESTDATA]'
     else:
         constructed_prompt = (
             "[INST] <<SYS>> You are a Java developer optimizing JUnit tests for clarity. <</SYS>> Your task "
             "is to make a previously written JUnit test more understandable. The returned understandable test "
-            "must be between the [TEST] and [/TEST] tags, and do not put it in wrapper class. Provide comments where "
-            "necessary, rename variables,"
-            "improve test data, and rename the test name to be understandable."
-            "The previously written test to improve is between the [CODE] and [/CODE] tags."
+            "must be between the [TEST] and [/TEST] tags. \n"
+            "Add comments to the code which explain what is happening and the intentions of what is being done."
+            "Only Change variable names to make them more relevant leaving the test data untouched."
+            "Overall, it is the goal to have a more concise test which is "
+            "both descriptive as well as relevant to the context. \n"
+            "The previously written test to improve is between the [CODE] and [/CODE] tags.\n"
             f"[CODE]\n{prompt.prompt_text}\n[/CODE]\n")
         regex_test = r'\[TEST](.*?)\[/TEST]'
 
@@ -190,6 +192,8 @@ def get_llm_response(prompt: Prompt) -> Response:
                         if "//" not in line:
                             answer_without_comments.append(line)
                     extracted_answer = "\n".join(answer_without_comments)
+                else:
+                    extracted_answer = parse_refined_test_method(extracted_answer)
 
 
                 return Response(llm_response=extracted_answer)
@@ -215,15 +219,70 @@ def get_llm_response(prompt: Prompt) -> Response:
                             if "//" not in line:
                                 answer_without_comments.append(line)
                         extracted_answer = "\n".join(answer_without_comments)
+                    else:
+                        extracted_answer = parse_refined_test_method(extracted_answer)
 
                     return Response(llm_response=extracted_answer)
                 except:
-                    return Response(llm_response="ERROR: Something Went Wrong When Extracting Response")
+                    print("ERROR: Something Went Wrong When Extracting Response")
+                    print("Trying again with the same prompt...")
+                    return get_llm_response(prompt)
         else:
-            print("Error:", response.status_code, response.text)
+            print("There was an Error:", response.status_code, response.text)
+            print("Trying again with same prompt...")
+            return get_llm_response(prompt)
 
 def dummy_llm_response(prompt: Prompt) -> Response:
     return Response(llm_response=prompt.prompt_text)
 
+def parse_refined_test_method(test: str) -> str:
+    # defining the keywords which when we find in a line we continue to cut down the total test
+    keywords = ["import", "@Test", "public", "void", "}", "Class"]
+
+    java_string_split = test.split("\n")
+
+    had_keyword = False
+
+    # trimming the code down from the top until we have the actual code
+    while True:
+        for k in keywords:
+            if (k in java_string_split[0] or
+                    len(java_string_split[0].strip()) == 0 or
+                    java_string_split[0].strip()[0] == "*" or
+                    java_string_split[0][0:2] == "/*" or
+                    java_string_split[0][0:2] == "*/"):
+                java_string_split.remove(java_string_split[0])
+                had_keyword = True
+                break
+
+        if had_keyword:
+            had_keyword = False
+            continue
+
+        else:
+            break
+
+    # trimming the code upwards from the bottom until we have the actual code
+    while True:
+        for k in keywords:
+            if (k in java_string_split[len(java_string_split) - 1] or
+                    len(java_string_split[len(java_string_split) - 1].strip()) == 0 or
+                    java_string_split[len(java_string_split) - 1].strip()[0] == "*" or
+                    java_string_split[len(java_string_split) - 1][0:2] == "/*" or
+                    java_string_split[len(java_string_split) - 1][0:2] == "*/"):
+                java_string_split.remove(java_string_split[len(java_string_split) - 1])
+                had_keyword = True
+                break
+
+        if had_keyword:
+            had_keyword = False
+            continue
+
+        else:
+            break
+
+    # concatenating the different lines and returning the final string.
+    finalized_code = str.join("\n", [x.strip() for x in java_string_split])
+    return finalized_code
 
 schema = strawberry.Schema(query=Query)
