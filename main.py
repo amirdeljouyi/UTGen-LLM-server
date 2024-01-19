@@ -4,17 +4,17 @@ import requests
 from typing import Optional
 import re
 
-
 # Global variables to configure the behavior of the script and the model used.
 # USE_LOCAL_LLM flag determines whether to use a local model (with ollama) or an external API for LLM.
 
-USE_LOCAL_LLM = True   # <- set this boolean to false if you don't want to use a local model
+USE_LOCAL_LLM = True  # <- set this boolean to false if you don't want to use a local model
 
 api_token = "hf_XXXXXXX"  # <- change this to your hugging_face_token
-#model_id = "WizardLM/WizardCoder-3B-V1.0"  # <- change this to the model you want to use
+# model_id = "WizardLM/WizardCoder-3B-V1.0"  # <- change this to the model you want to use
 
 
-model_id = "codellama/CodeLlama-7b-Instruct-hf"   # <- this is the model intended to be used but had to be commented out
+model_id = "codellama/CodeLlama-7b-Instruct-hf"  # <- this is the model intended to be used but had to be commented out
+
 
 @strawberry.input
 class Prompt:
@@ -39,6 +39,7 @@ class Query:
         """
         return get_llm_response(prompt)
         # return dummy_llm_response(prompt)
+
 
 def get_llm_response(prompt: Prompt) -> Response:
     """
@@ -105,7 +106,8 @@ def get_llm_response(prompt: Prompt) -> Response:
             "[INST] <<SYS>> You are a Java developer optimizing JUnit tests for clarity. <</SYS>> Your task "
             "is to make a previously written JUnit test more understandable. The returned understandable test "
             "must be between the [TEST] and [/TEST] tags. \n"
-            "Add comments to the code which explain what is happening and the intentions of what is being done."
+            "Add comments (with the Given, When, Then Structure) to the code which explain what is happening and the "
+            "intentions of what is being done."
             "Only Change variable names to make them more relevant leaving the test data untouched."
             "Overall, it is the goal to have a more concise test which is "
             "both descriptive as well as relevant to the context. \n"
@@ -113,8 +115,7 @@ def get_llm_response(prompt: Prompt) -> Response:
             f"[CODE]\n{prompt.prompt_text}\n[/CODE]\n")
         regex_test = r'\[TEST](.*?)\[/TEST]'
 
-
-    print(constructed_prompt)   # Debugging : Print constructed prmopt
+    print(constructed_prompt)  # Debugging : Print constructed prmopt
     if not USE_LOCAL_LLM:
         # Handling communication with the Hugging Face API
         API_URL = f"https://api-inference.huggingface.co/models/{model_id}"
@@ -158,7 +159,6 @@ def get_llm_response(prompt: Prompt) -> Response:
             'Content-Type': 'application/json'
         }
 
-
         data = {
             "model": "codellama:7b-instruct",
             "prompt": constructed_prompt,
@@ -166,7 +166,6 @@ def get_llm_response(prompt: Prompt) -> Response:
         }
 
         response = requests.post(API_URL, headers=headers, data=json.dumps(data))
-
 
         if response.status_code == 200:
             response_text = response.text
@@ -193,8 +192,10 @@ def get_llm_response(prompt: Prompt) -> Response:
                             answer_without_comments.append(line)
                     extracted_answer = "\n".join(answer_without_comments)
                 else:
+                    # so we can ensure that only a singular test is returned
+                    if extracted_answer.rfind("@Test") > 1:
+                        raise Exception
                     extracted_answer = parse_refined_test_method(extracted_answer)
-
 
                 return Response(llm_response=extracted_answer)
             except:
@@ -220,6 +221,9 @@ def get_llm_response(prompt: Prompt) -> Response:
                                 answer_without_comments.append(line)
                         extracted_answer = "\n".join(answer_without_comments)
                     else:
+                        # so we can ensure that only a singular test is returned
+                        if extracted_answer.rfind("@Test") > 1:
+                            raise Exception
                         extracted_answer = parse_refined_test_method(extracted_answer)
 
                     return Response(llm_response=extracted_answer)
@@ -232,8 +236,10 @@ def get_llm_response(prompt: Prompt) -> Response:
             print("Trying again with same prompt...")
             return get_llm_response(prompt)
 
+
 def dummy_llm_response(prompt: Prompt) -> Response:
     return Response(llm_response=prompt.prompt_text)
+
 
 def parse_refined_test_method(test: str) -> str:
     # defining the keywords which when we find in a line we continue to cut down the total test
@@ -284,5 +290,6 @@ def parse_refined_test_method(test: str) -> str:
     # concatenating the different lines and returning the final string.
     finalized_code = str.join("\n", [x.strip() for x in java_string_split])
     return finalized_code
+
 
 schema = strawberry.Schema(query=Query)
