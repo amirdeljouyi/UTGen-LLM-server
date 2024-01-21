@@ -193,7 +193,7 @@ def get_llm_response(prompt: Prompt) -> Response:
                     extracted_answer = "\n".join(answer_without_comments)
                 else:
                     # so we can ensure that only a singular test is returned
-                    if extracted_answer.rfind("@Test") > 1:
+                    if extracted_answer.rfind("@Test") > 1 or is_refined_test_exclusively_comments(extracted_answer):
                         raise Exception
                     extracted_answer = parse_refined_test_method(extracted_answer)
 
@@ -222,7 +222,7 @@ def get_llm_response(prompt: Prompt) -> Response:
                         extracted_answer = "\n".join(answer_without_comments)
                     else:
                         # so we can ensure that only a singular test is returned
-                        if extracted_answer.rfind("@Test") > 1:
+                        if extracted_answer.rfind("@Test") > 1  or is_refined_test_exclusively_comments(extracted_answer):
                             raise Exception
                         extracted_answer = parse_refined_test_method(extracted_answer)
 
@@ -239,6 +239,17 @@ def get_llm_response(prompt: Prompt) -> Response:
 
 def dummy_llm_response(prompt: Prompt) -> Response:
     return Response(llm_response=prompt.prompt_text)
+
+
+def is_refined_test_exclusively_comments(test: str) -> bool:
+    code_split = test.split("\n")
+    count_comment_lines = 0
+    for line in code_split:
+        for elem in ["//", "Gi", "gi", "Wh", "wh", "Th", "th"]:
+            if line[0:2] == elem:
+                count_comment_lines += 1
+                break
+    return count_comment_lines == len(code_split)
 
 
 def parse_refined_test_method(test: str) -> str:
