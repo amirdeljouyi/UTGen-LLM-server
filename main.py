@@ -4,17 +4,6 @@ import requests
 from typing import Optional
 import re
 
-# Global variables to configure the behavior of the script and the model used.
-# USE_LOCAL_LLM flag determines whether to use a local model (with ollama) or an external API for LLM.
-
-USE_LOCAL_LLM = True  # <- set this boolean to false if you don't want to use a local model
-
-api_token = "hf_XXXXXXX"  # <- change this to your hugging_face_token
-# model_id = "WizardLM/WizardCoder-3B-V1.0"  # <- change this to the model you want to use
-
-
-model_id = "codellama/CodeLlama-7b-Instruct-hf"  # <- this is the model intended to be used but had to be commented out
-
 
 @strawberry.input
 class Prompt:
@@ -41,35 +30,15 @@ class Query:
         # return dummy_llm_response(prompt)
 
 
-def get_llm_response(prompt: Prompt) -> Response:
+def construct_prompt(content: str, prompt_type: str) -> str:
     """
-    Function to handle the communication with the LLM (either local or via Hugging Face API)
-    based on the USE_LOCAL_LLM flag. Constructs the prompt and processes the response.
-
-    :param prompt: the provided prompt by the user as a Prompt type containing the fields required
-    :return: The response of the llm as a Response type
+    A function to return a relevant prompt based on a given prompt_type and the contenet associated with it
+    :param content: the content of the prompt to be constructed
+    :param prompt_type: the type of the prompt to be constructed
+    :return: the prompt to be used for the specific given prompt_type
     """
 
-    # This constructed prompt is based on the paper by meta on CodeLlama and how to design prompts for the model
-    # based on the model in use and task specification at hand this construction should be adjusted accordingly
-
-    # constructed_prompt = (
-    #             "[INST] <<SYS>> You are a Java developer optimizing JUnit tests for clarity. <</SYS>> Your task is to "
-    #             "make a"
-    #             "previously written JUnit test more understandable. The understandable test must be between the ["
-    #             "TEST] and [/TEST] tags. Provide comments where necessary and rename variables and the test name to be "
-    #             "understandable."
-    #             "The previously written test to improve is between the [CODE] and [/CODE] tags. The method signature "
-    #             "and javadoc of the"
-    #             "method under test is given between the [SIGNATURE] and [/SIGNATURE] tags.[/INST]\n\n" +
-    #             f"[CODE]\n{prompt.prompt_text}\n[/CODE]\n[SIGNATURE]\n{prompt.mut_signature_and_doc}\n[/SIGNATURE]\n")
-    if prompt.prompt_type == "testname":
-        # constructed_prompt = (
-        #     "[INST] suggest an understandable test method name which is descriptive for the provided Java code. "
-        #     "the name should be exclusively UpperCamelCase, where each word begins with a capital letter."
-        #     "Put the understandable test method name in between the [TESTNAME] and [/TESTNAME] tags. "
-        #     "The test to name is between the [CODE] and [/CODE] tags.[/INST]\n"
-        #     f"[CODE]\n{prompt.prompt_text}\n[/CODE]\n")
+    if prompt_type == "testname":
         constructed_prompt = (
             "[INST] As a detail-oriented developer, your task is to analyze the provided Java code and deduce a "
             "descriptive test method name. Follow these steps:\n"
@@ -81,12 +50,9 @@ def get_llm_response(prompt: Prompt) -> Response:
             "clear and precise without additional descriptions.\n"
             "Remember, your focus is on clarity and precision. Use your expertise to provide a meaningful and "
             "appropriate name.[/INST]\n"
-            f"[CODE]\n{prompt.prompt_text}\n[/CODE]\n"
+            f"[CODE]\n{content}\n[/CODE]\n"
         )
-
-        regex_test = r'\[TESTNAME](.*?)\[/TESTNAME]'
-
-    elif prompt.prompt_type == "testdata":
+    elif prompt_type == "testdata":
         constructed_prompt = (
             "[INST] As a meticulous Java developer focused on enhancing the clarity and effectiveness "
             "of a test suite. Your task is to refine the test data within a given code fragment. Your goal is to "
@@ -98,9 +64,8 @@ def get_llm_response(prompt: Prompt) -> Response:
             "3. Place your Improved code between the [TESTDATA] and [/TESTDATA] tags when you are done with the "
             "previous steps.\n\n"
             "The code snippet you need to refine is between te [CODE] and [/CODE] tag.[/INST]\n"
-            f"[CODE]{prompt.prompt_text}\n[/CODE]\n\n"
+            f"[CODE]\n{content}\n[/CODE]\n\n"
         )
-        regex_test = r'\[TESTDATA](.*?)\[/TESTDATA]'
     else:
         constructed_prompt = (
             "[INST] <<SYS>> You are a Java developer optimizing JUnit tests for clarity. <</SYS>> Your task "
@@ -112,195 +77,200 @@ def get_llm_response(prompt: Prompt) -> Response:
             "Overall, it is the goal to have a more concise test which is "
             "both descriptive as well as relevant to the context. \n"
             "The previously written test to improve is between the [CODE] and [/CODE] tags.\n"
-            f"[CODE]\n{prompt.prompt_text}\n[/CODE]\n")
-        regex_test = r'\[TEST](.*?)\[/TEST]'
+            f"[CODE]\n{content}\n[/CODE]\n")
 
-    print(constructed_prompt)  # Debugging : Print constructed prmopt
-    if not USE_LOCAL_LLM:
-        # Handling communication with the Hugging Face API
-        API_URL = f"https://api-inference.huggingface.co/models/{model_id}"
-        headers = {"Authorization": f"Bearer {api_token}"}
+    return constructed_prompt
 
-        payload = {
-            'inputs': constructed_prompt,
-            # 'parameters': {
-            #     'max_new_tokens': 250,
-            #     'top_p': 1,
-            #     # any other parameters required
-            # },
-            'options': {
-                'wait_for_model': False,
-                # always handy for when models are not yet loaded
-            }
-        }
 
-        response = requests.post(API_URL, headers=headers, json=payload)
-        response_json = response.json()
-        if 'error' in response_json:
-            print("An error was encountered when trying to get a response")
-            print(response_json)
-            return Response(llm_response="No Response: Error Encountered")
-        print(response_json)
+def utilize_llm(prompt: str, model: str = "codellama:7b-instruct") -> str:
+    """
+    A function to utilize an LLM available in Ollama by providing the prompt and the (optional) model to use
+    :param prompt: the prompt to send to the LLM
+    :param model: the model to utilize which is set to codellam:7b-instruct by default
+    :return: the response of the model
+    """
+    API_URL = "http://localhost:11434/api/generate"
+    headers = {
+        'Content-Type': 'application/json'
+    }
 
-        # Check if response_json is a list and has at least one element
-        if isinstance(response_json, list) and len(response_json) > 0:
-            # Assuming the first element in the list contains the desired data
-            if 'generated_text' in response_json[0]:
-                return Response(llm_response=response_json[0]['generated_text'])
-            else:
-                return Response(llm_response="No generated text found")
-        else:
-            return Response(llm_response="Invalid response format")
+    data = {
+        "model": model,
+        "prompt": prompt,
+        "stream": False
+    }
+
+    response = requests.post(API_URL, headers=headers, data=json.dumps(data))
+
+    if response.status_code == 200:
+        data = json.loads(response.text)
+        return data["response"]
     else:
-        # Handling communication with a local LLM instance
-
-        API_URL = "http://localhost:11434/api/generate"
-        headers = {
-            'Content-Type': 'application/json'
-        }
-
-        data = {
-            "model": "codellama:7b-instruct",
-            "prompt": constructed_prompt,
-            "stream": False
-        }
-
-        response = requests.post(API_URL, headers=headers, data=json.dumps(data))
-
-        if response.status_code == 200:
-            response_text = response.text
-            data = json.loads(response_text)
-            try:
-                actual_response = data["response"]
-                print(actual_response)
-                # Extracting the specific response part from the entire response
-                extracted_answer = re.findall(regex_test, actual_response, re.DOTALL)[0]
-
-                if prompt.prompt_type == "testname":
-                    chars_to_remove = " ()_"
-                    for char in chars_to_remove:
-                        extracted_answer = extracted_answer.replace(char, "")
-                elif prompt.prompt_type == "testdata":
-                    extracted_answer = re.findall(regex_test, actual_response, re.DOTALL)[-1]
-                    print("The extracted answer is:\n")
-                    print(repr(extracted_answer))
-
-                    split_string = extracted_answer.split("\n")
-                    answer_without_comments = []
-                    for i, line in enumerate(split_string):
-                        if "//" not in line:
-                            answer_without_comments.append(line)
-                    extracted_answer = "\n".join(answer_without_comments)
-                else:
-                    # so we can ensure that only a singular test is returned
-                    if extracted_answer.rfind("@Test") > 1 or is_refined_test_exclusively_comments(extracted_answer):
-                        raise Exception
-                    extracted_answer = parse_refined_test_method(extracted_answer)
-
-                return Response(llm_response=extracted_answer)
-            except:
-                try:
-                    regex_test = r'```(?:java )?(.*?)```'
-                    actual_response = data["response"]
-                    print(actual_response)
-                    # Extracting the specific response part from the entire response
-                    extracted_answer = re.findall(regex_test, actual_response, re.DOTALL)[0]
-                    if prompt.prompt_type == "testname":
-                        chars_to_remove = " ()_"
-                        for char in chars_to_remove:
-                            extracted_answer = extracted_answer(char, "")
-                    elif prompt.prompt_type == "testdata":
-                        extracted_answer = re.findall(regex_test, actual_response, re.DOTALL)[-1]
-                        print("The extracted answer is:\n")
-                        print(repr(extracted_answer))
-
-                        split_string = extracted_answer.split("\n")
-                        answer_without_comments = []
-                        for i, line in enumerate(split_string):
-                            if "//" not in line:
-                                answer_without_comments.append(line)
-                        extracted_answer = "\n".join(answer_without_comments)
-                    else:
-                        # so we can ensure that only a singular test is returned
-                        if extracted_answer.rfind("@Test") > 1  or is_refined_test_exclusively_comments(extracted_answer):
-                            raise Exception
-                        extracted_answer = parse_refined_test_method(extracted_answer)
-
-                    return Response(llm_response=extracted_answer)
-                except:
-                    print("ERROR: Something Went Wrong When Extracting Response")
-                    print("Trying again with the same prompt...")
-                    return get_llm_response(prompt)
-        else:
-            print("There was an Error:", response.status_code, response.text)
-            print("Trying again with same prompt...")
-            return get_llm_response(prompt)
+        print("There was an error while trying to send the request to the LLM, trying again...")
+        return utilize_llm(prompt, model)
 
 
-def dummy_llm_response(prompt: Prompt) -> Response:
-    return Response(llm_response=prompt.prompt_text)
+def parse_test_name(extracted_answer: str) -> str:
+    """
+    A method to return the extracted test name in proper format
+    :param extracted_answer: the base extracted response from the LLM
+    :return: the test name in the intended format
+    """
+    chars_to_remove = " ()_"
+    for char in chars_to_remove:
+        extracted_answer = extracted_answer.replace(char, "")
+    return extracted_answer.strip()
 
 
-def is_refined_test_exclusively_comments(test: str) -> bool:
-    code_split = test.split("\n")
+def get_code_body(code: str) -> str:
+    """
+    A method to extract purely the method body
+    :param code: The code to extract only the code from
+    :param mode: The type of the extracting
+    :return:
+    """
+    # Splitting the input string into lines
+    lines = code.split("\n")
+
+    # Defining keywords and comment indicators
+    keywords = {"import", "@Test", "@Timeout", "public", "void", "Class", "{", "}"}
+    comment_indicators = {"*", "/*", "*/"}
+
+    # Helper function to check if a line should be skipped
+    def should_skip(line: str) -> bool:
+        stripped_line = line.strip()
+        if not stripped_line:
+            return True  # Skip empty lines
+        if any(stripped_line.startswith(indicator) for indicator in comment_indicators):
+            return False  # Keep comments
+        return any(keyword in stripped_line for keyword in keywords)
+
+    # Removing lines from the top
+    while lines and (len(lines[0].strip()) == 0 or should_skip(lines[0])):
+        lines.pop(0)
+
+    if len(lines) > 1 and "public" in lines[1]:
+        lines.pop(1)
+
+    # Removing lines from the bottom
+    while lines and (len(lines[-1].strip()) == 0 or should_skip(lines[-1])):
+        lines.pop()
+
+    # Joining the remaining lines
+    return "\n".join(line.strip() for line in lines)
+
+
+def validate_refined_test_method_is_valid(body: str) -> bool:
+    # TODO : implement using ANTLR or Spoon
+    code_split = body.split("\n")
     count_comment_lines = 0
     for line in code_split:
-        for elem in ["//", "Gi", "gi", "Wh", "wh", "Th", "th"]:
-            if line[0:2] == elem:
+        for elem in ["Given", "When", "Then", "given", "when", "then", "//"]:
+            if elem in line.strip():
                 count_comment_lines += 1
                 break
-    return count_comment_lines == len(code_split)
+    return not count_comment_lines == len(code_split)
 
 
-def parse_refined_test_method(test: str) -> str:
-    # defining the keywords which when we find in a line we continue to cut down the total test
-    keywords = ["import", "@Test", "public", "void", "}", "Class"]
-
-    java_string_split = test.split("\n")
-
-    had_keyword = False
-
-    # trimming the code down from the top until we have the actual code
-    while True:
-        for k in keywords:
-            if (k in java_string_split[0] or
-                    len(java_string_split[0].strip()) == 0 or
-                    java_string_split[0].strip()[0] == "*" or
-                    java_string_split[0][0:2] == "/*" or
-                    java_string_split[0][0:2] == "*/"):
-                java_string_split.remove(java_string_split[0])
-                had_keyword = True
-                break
-
-        if had_keyword:
-            had_keyword = False
-            continue
-
-        else:
-            break
-
-    # trimming the code upwards from the bottom until we have the actual code
-    while True:
-        for k in keywords:
-            if (k in java_string_split[len(java_string_split) - 1] or
-                    len(java_string_split[len(java_string_split) - 1].strip()) == 0 or
-                    java_string_split[len(java_string_split) - 1].strip()[0] == "*" or
-                    java_string_split[len(java_string_split) - 1][0:2] == "/*" or
-                    java_string_split[len(java_string_split) - 1][0:2] == "*/"):
-                java_string_split.remove(java_string_split[len(java_string_split) - 1])
-                had_keyword = True
-                break
-
-        if had_keyword:
-            had_keyword = False
-            continue
-
-        else:
-            break
-
+def parse_refined_test_method(code: str) -> str:
     # concatenating the different lines and returning the final string.
-    finalized_code = str.join("\n", [x.strip() for x in java_string_split])
-    return finalized_code
+    body = get_code_body(code)
+    valid = validate_refined_test_method_is_valid(body)
+    return body if (valid and "@Test" not in body) else None
+
+
+def parse_test_data(extracted_answer: str) -> str:
+    """
+    A method to return the extracted test data in proper format
+    :param extracted_answer: the base extracted response from the LLM
+    :return: the test data statements in the intended format
+    """
+    extracted_answer = get_code_body(extracted_answer)
+    if (extracted_answer and len(extracted_answer) > 4 and
+            "java" in extracted_answer.strip().lower()[0:4]):
+        extracted_answer = extracted_answer[4:-1]
+
+    return extracted_answer.strip() if "@Test" not in extracted_answer else None
+
+
+def extract_answer(response: str, prompt_type: str) -> str:
+    """
+    extracts the answer of the LLM based on the type of the promtp
+    :param response: the complete response from teh LLM
+    :param prompt_type: the type of the prompt according to which the answer is extracted
+    :return: the extracted answer
+    """
+    regex_fallback = r'```java(?:[\s\S]*?)```'
+    if prompt_type == "testname":
+        regex_test = r'\[TESTNAME](.*?)\[/TESTNAME]'
+    elif prompt_type == "testdata":
+        regex_test = r'\[TESTDATA](.*?)\[/TESTDATA]'
+    else:
+        regex_test = r'\[TEST](.*?)\[/TEST]'
+
+    try:
+        extracted_answer = re.findall(regex_test, response, re.DOTALL)[(
+            -1 if prompt_type == "testdata" else 0
+        )]
+    except:
+        try:
+            extracted_answer = re.findall(regex_fallback, response, re.DOTALL)[(
+                -1 if prompt_type == "testdata" else 0
+            )]
+            extracted_answer = extracted_answer[3: -3]
+            if "java" in extracted_answer[0:4]:
+                extracted_answer = extracted_answer[4:]
+
+        except:
+            print("The format of the returned response from the LLM was invalid")
+            return None
+
+    print("\n\nThe extracted answer is:\n" + extracted_answer)
+
+    if prompt_type == "testname":
+        extracted_answer = parse_test_name(extracted_answer)
+    elif prompt_type == "testdata":
+        extracted_answer = parse_test_data(extracted_answer)
+    else:
+        extracted_answer = parse_refined_test_method(extracted_answer)
+
+    return extracted_answer
+
+
+def get_llm_response(prompt: Prompt) -> Response:
+    """
+    Function to handle the communication with the LLM (either local or via Hugging Face API)
+    based on the USE_LOCAL_LLM flag. Constructs the prompt and processes the response.
+
+    :param prompt: the provided prompt by the user as a Prompt type containing the fields required
+    :return: The response of the llm as a Response type
+    """
+
+    try:
+        constructed_prompt = construct_prompt(prompt.prompt_text, prompt.prompt_type)
+        print("The constructed prompt is:\n" + constructed_prompt)
+
+        response = utilize_llm(constructed_prompt)
+        print("\n\nThe unprocessed LLM response was:\n" + response)
+
+        answer = extract_answer(response, prompt.prompt_type)
+        if not answer:
+            raise Exception
+        print("\nThe final answer from LLM Server is:\n" + answer)
+
+        return Response(llm_response=answer)
+
+
+    except:
+        print("There was an Error!")
+        print("Trying again with same prompt...")
+        return get_llm_response(prompt)
 
 
 schema = strawberry.Schema(query=Query)
+
+# =====================
+# Some tests
+# =====================
+
+
