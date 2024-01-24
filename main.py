@@ -110,6 +110,23 @@ def utilize_llm(prompt: str, model: str = "codellama:7b-instruct") -> str:
         return utilize_llm(prompt, model)
 
 
+def validate_test_name(name:str) -> bool:
+    """
+    A function to to validate that the name of the test is valid
+    :param name: the name that is to be validated
+    :return: whether the string is valid
+    """
+    invalid = ["@", "[", "]", "{", "}", ";", ":", "=", ",", "."]
+    for char in invalid:
+        if(char in name):
+            return False
+
+    if len(name.strip()) > 50:
+        return False
+
+    return True
+
+
 def parse_test_name(extracted_answer: str) -> str:
     """
     A method to return the extracted test name in proper format
@@ -119,7 +136,8 @@ def parse_test_name(extracted_answer: str) -> str:
     chars_to_remove = " ()_"
     for char in chars_to_remove:
         extracted_answer = extracted_answer.replace(char, "")
-    return extracted_answer.strip()
+    valid = validate_test_name(extracted_answer)
+    return extracted_answer.strip() if valid else None
 
 
 def get_code_body(code: str) -> str:
@@ -142,8 +160,12 @@ def get_code_body(code: str) -> str:
         if not stripped_line:
             return True  # Skip empty lines
         if any(stripped_line.startswith(indicator) for indicator in comment_indicators):
-            return False  # Keep comments
-        return any(keyword in stripped_line for keyword in keywords)
+            return True  # Don't keep javadoc prior to method
+
+        if any(keyword in stripped_line for keyword in keywords):
+            return not "[]" in stripped_line  # take array declaration with the format type[]
+                                                # name = new type[] {} into account
+        return False
 
     # Removing lines from the top
     while lines and (len(lines[0].strip()) == 0 or should_skip(lines[0])):
@@ -165,11 +187,11 @@ def validate_refined_test_method_is_valid(body: str) -> bool:
     code_split = body.split("\n")
     count_comment_lines = 0
     for line in code_split:
-        for elem in ["Given", "When", "Then", "given", "when", "then", "//"]:
+        for elem in ["Given", "When", "Then", "given", "when", "then", "And", "and", "Also", "also", "//"]:
             if elem in line.strip():
                 count_comment_lines += 1
                 break
-    return not count_comment_lines == len(code_split)
+    return count_comment_lines != len(code_split)
 
 
 def parse_refined_test_method(code: str) -> str:
@@ -272,5 +294,3 @@ schema = strawberry.Schema(query=Query)
 # =====================
 # Some tests
 # =====================
-
-
