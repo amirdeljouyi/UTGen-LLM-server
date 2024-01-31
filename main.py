@@ -3,6 +3,10 @@ import strawberry
 import requests
 from typing import Optional
 import re
+# import bleu
+# import weighted_ngram_match
+# import syntax_match
+# import dataflow_match
 
 
 @strawberry.input
@@ -110,15 +114,15 @@ def utilize_llm(prompt: str, model: str = "codellama:7b-instruct") -> str:
         return utilize_llm(prompt, model)
 
 
-def validate_test_name(name:str) -> bool:
+def validate_test_name(name: str) -> bool:
     """
-    A function to to validate that the name of the test is valid
+    A function to validate that the name of the test is valid
     :param name: the name that is to be validated
     :return: whether the string is valid
     """
     invalid = ["@", "[", "]", "{", "}", ";", ":", "=", ",", "."]
     for char in invalid:
-        if(char in name):
+        if (char in name):
             return False
 
     if len(name.strip()) > 50:
@@ -164,7 +168,7 @@ def get_code_body(code: str) -> str:
 
         if any(keyword in stripped_line for keyword in keywords):
             return not "[]" in stripped_line  # take array declaration with the format type[]
-                                                # name = new type[] {} into account
+            # name = new type[] {} into account
         return False
 
     # Removing lines from the top
@@ -194,11 +198,85 @@ def validate_refined_test_method_is_valid(body: str) -> bool:
     return count_comment_lines != len(code_split)
 
 
-def parse_refined_test_method(code: str) -> str:
+def comment_stripped_code(body: str):
+    """
+    A function to only get the code without the comments
+    :param body: the code to remove the comments from
+    :return: code with exclusively code and no comments
+    """
+    lines = body.split("\n")
+    lines_stripped = []
+    for line in lines:
+        if "//" not in line.strip()[0:2]:
+            lines_stripped.append(line)
+
+    return "\n".join(lines_stripped)
+
+
+def get_code_bleu_score(response_code, original_code):
+    """
+    A method to get the code bleu score for the generated code
+    :param response_code: The response from the LLM without comments
+    :param original_code: The original code without any improvements made
+    :return: the score for the response
+    """
+
+    # lang = "java"
+    # alpha, beta, gamma, theta = 0.25, 0.25, 0.25, 0.25
+    # pre_reference = original_code.strip()
+    # hypothesis = response_code.strip()
+    #
+    # # calculate ngram match (BLEU)
+    # tokenized_hyps = [x.split() for x in hypothesis]
+    # tokenized_refs = [x.split() for x in pre_reference]
+    #
+    # ngram_match_score = bleu.corpus_bleu(tokenized_refs, tokenized_hyps)
+    #
+    # # calculate weighted ngram match
+    # keywords = [
+    #     "abstract", "assert", "boolean", "break", "byte", "case", "catch", "char",
+    #     "class", "const", "continue", "default", "do", "double", "else", "enum",
+    #     "extends", "final", "finally", "float", "for", "goto", "if", "implements",
+    #     "import", "instanceof", "int", "interface", "long", "native", "new",
+    #     "package", "private", "protected", "public", "return", "short", "static",
+    #     "strictfp", "super", "switch", "synchronized", "this", "throw", "throws",
+    #     "transient", "try", "void", "volatile", "while"
+    # ]
+    #
+    # def make_weights(reference_tokens, key_word_list):
+    #     return {token: 1 if token in key_word_list else 0.2 \
+    #             for token in reference_tokens}
+    #
+    # tokenized_refs_with_weights = [[reference_tokens, make_weights(reference_tokens, keywords)]
+    #                                for reference_tokens in tokenized_refs]
+    #
+    # weighted_ngram_match_score = weighted_ngram_match.corpus_bleu(tokenized_refs_with_weights, tokenized_hyps)
+    #
+    # # calculate syntax match
+    # syntax_match_score = syntax_match.corpus_syntax_match(pre_reference, hypothesis, "java")
+    #
+    # # calculate dataflow match
+    # dataflow_match_score = dataflow_match.corpus_dataflow_match(pre_reference, hypothesis, "java")
+    #
+    # print('ngram match: {0}, weighted ngram match: {1}, syntax_match: {2}, dataflow_match: {3}'. \
+    #       format(ngram_match_score, weighted_ngram_match_score, syntax_match_score, dataflow_match_score))
+    #
+    # code_bleu_score = alpha * ngram_match_score \
+    #                   + beta * weighted_ngram_match_score \
+    #                   + gamma * syntax_match_score \
+    #                   + theta * dataflow_match_score
+    # return code_bleu_score
+    return 1
+
+
+def parse_refined_test_method(code: str, original_code: str) -> str:
     # concatenating the different lines and returning the final string.
     body = get_code_body(code)
     valid = validate_refined_test_method_is_valid(body)
-    return body if (valid and "@Test" not in body) else None
+    score = get_code_bleu_score(comment_stripped_code(body), original_code)
+    if "try" in body and "catch" in body:
+        body = body + "\n}"
+    return body if (valid and "@Test" not in body and score > 0.5) else None
 
 
 def parse_test_data(extracted_answer: str) -> str:
@@ -215,9 +293,10 @@ def parse_test_data(extracted_answer: str) -> str:
     return extracted_answer.strip() if "@Test" not in extracted_answer else None
 
 
-def extract_answer(response: str, prompt_type: str) -> str:
+def extract_answer(response: str, prompt_type: str, original_code: Optional[str] = None) -> str:
     """
-    extracts the answer of the LLM based on the type of the promtp
+    extracts the answer of the LLM based on the type of the prompt
+    :param original_code: The original code which can be provided in the case where we are extracting refined test
     :param response: the complete response from teh LLM
     :param prompt_type: the type of the prompt according to which the answer is extracted
     :return: the extracted answer
@@ -254,7 +333,7 @@ def extract_answer(response: str, prompt_type: str) -> str:
     elif prompt_type == "testdata":
         extracted_answer = parse_test_data(extracted_answer)
     else:
-        extracted_answer = parse_refined_test_method(extracted_answer)
+        extracted_answer = parse_refined_test_method(extracted_answer, original_code)
 
     return extracted_answer
 
@@ -275,7 +354,8 @@ def get_llm_response(prompt: Prompt) -> Response:
         response = utilize_llm(constructed_prompt)
         print("\n\nThe unprocessed LLM response was:\n" + response)
 
-        answer = extract_answer(response, prompt.prompt_type)
+        answer = extract_answer(response, prompt.prompt_type, prompt.prompt_text)
+
         if not answer:
             raise Exception
         print("\nThe final answer from LLM Server is:\n" + answer)
