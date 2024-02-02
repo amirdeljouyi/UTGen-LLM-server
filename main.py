@@ -3,10 +3,7 @@ import strawberry
 import requests
 from typing import Optional
 import re
-# import bleu
-# import weighted_ngram_match
-# import syntax_match
-# import dataflow_match
+import codebleu
 
 
 @strawberry.input
@@ -187,6 +184,11 @@ def get_code_body(code: str) -> str:
 
 
 def validate_refined_test_method_is_valid(body: str) -> bool:
+    """
+    A method to validate whether the test method is valid by checking that is not exclusively comments
+    :param body: The code to check for validity
+    :return: a boolean indicating whether a test method is valid
+    """
     # TODO : implement using ANTLR or Spoon
     code_split = body.split("\n")
     count_comment_lines = 0
@@ -221,61 +223,26 @@ def get_code_bleu_score(response_code, original_code):
     :return: the score for the response
     """
 
-    # lang = "java"
-    # alpha, beta, gamma, theta = 0.25, 0.25, 0.25, 0.25
-    # pre_reference = original_code.strip()
-    # hypothesis = response_code.strip()
-    #
-    # # calculate ngram match (BLEU)
-    # tokenized_hyps = [x.split() for x in hypothesis]
-    # tokenized_refs = [x.split() for x in pre_reference]
-    #
-    # ngram_match_score = bleu.corpus_bleu(tokenized_refs, tokenized_hyps)
-    #
-    # # calculate weighted ngram match
-    # keywords = [
-    #     "abstract", "assert", "boolean", "break", "byte", "case", "catch", "char",
-    #     "class", "const", "continue", "default", "do", "double", "else", "enum",
-    #     "extends", "final", "finally", "float", "for", "goto", "if", "implements",
-    #     "import", "instanceof", "int", "interface", "long", "native", "new",
-    #     "package", "private", "protected", "public", "return", "short", "static",
-    #     "strictfp", "super", "switch", "synchronized", "this", "throw", "throws",
-    #     "transient", "try", "void", "volatile", "while"
-    # ]
-    #
-    # def make_weights(reference_tokens, key_word_list):
-    #     return {token: 1 if token in key_word_list else 0.2 \
-    #             for token in reference_tokens}
-    #
-    # tokenized_refs_with_weights = [[reference_tokens, make_weights(reference_tokens, keywords)]
-    #                                for reference_tokens in tokenized_refs]
-    #
-    # weighted_ngram_match_score = weighted_ngram_match.corpus_bleu(tokenized_refs_with_weights, tokenized_hyps)
-    #
-    # # calculate syntax match
-    # syntax_match_score = syntax_match.corpus_syntax_match(pre_reference, hypothesis, "java")
-    #
-    # # calculate dataflow match
-    # dataflow_match_score = dataflow_match.corpus_dataflow_match(pre_reference, hypothesis, "java")
-    #
-    # print('ngram match: {0}, weighted ngram match: {1}, syntax_match: {2}, dataflow_match: {3}'. \
-    #       format(ngram_match_score, weighted_ngram_match_score, syntax_match_score, dataflow_match_score))
-    #
-    # code_bleu_score = alpha * ngram_match_score \
-    #                   + beta * weighted_ngram_match_score \
-    #                   + gamma * syntax_match_score \
-    #                   + theta * dataflow_match_score
-    # return code_bleu_score
-    return 1
+    code_bleu_scores = codebleu.calc_codebleu([original_code], [response_code], lang="java",
+                                              weights=(0.25, 0.25, 0.25, 0.25))
+    print("Results for codebleu evaluation are: ")
+    print(code_bleu_scores)
+    return code_bleu_scores['codebleu']
 
 
 def parse_refined_test_method(code: str, original_code: str) -> str:
+    """
+    A method to refine the format of the extracted refined test method
+    :param code: The code we want to refine
+    :param original_code: The original code which was improved by the llm
+    :return: The refined body of the test
+    """
     # concatenating the different lines and returning the final string.
     body = get_code_body(code)
     valid = validate_refined_test_method_is_valid(body)
-    score = get_code_bleu_score(comment_stripped_code(body), original_code)
     if "try" in body and "catch" in body:
         body = body + "\n}"
+    score = get_code_bleu_score(comment_stripped_code(body), original_code)
     return body if (valid and "@Test" not in body and score > 0.5) else None
 
 
@@ -374,3 +341,29 @@ schema = strawberry.Schema(query=Query)
 # =====================
 # Some tests
 # =====================
+
+
+# orig_code = """
+# try(){
+#     System.out.println("hello world");
+# }catch(Exception e){
+#     System.out.println("something else");
+# }
+# """
+#
+# response_code = """
+# [TEST]
+# public void main test2(){
+#     // given a try catch block
+#     try(){
+#         // when the printing of hello world throws and error
+#         System.out.println("hello world");
+#     }catch(Exception e){
+#         // Then it is caught by the error handler
+#         System.out.println("something else");
+#     }
+# }
+# [/TEST]
+# """
+#
+# print(extract_answer(response_code, "test", orig_code))

@@ -1,1 +1,11 @@
 strawberry==3.0
+
+requests~=2.31.0
+bleu~=0.3
+transformers~=4.35.2
+ollama~=0.1.2
+qlient~=1.0.0
+javalang~=0.13.0
+gql~=3.5.0
+codebleu~=0.4.0
+utils~=1.0.2
