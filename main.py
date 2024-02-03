@@ -98,7 +98,8 @@ def utilize_llm(prompt: str, model: str = "codellama:7b-instruct") -> str:
     data = {
         "model": model,
         "prompt": prompt,
-        "stream": False
+        "stream": False,
+        "keep_alive": "-1"
     }
 
     response = requests.post(API_URL, headers=headers, data=json.dumps(data))
