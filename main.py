@@ -4,6 +4,7 @@ import requests
 from typing import Optional
 import re
 import codebleu
+from RequestState import RequestState
 
 
 @strawberry.input
@@ -27,18 +28,18 @@ class Query:
         :param prompt: takes in a Prompt type and based on that calls the get_llm_response
         :return: the llm response of type Response containing the generated text by the llm.
         """
-        return get_llm_response(prompt)
+        return get_llm_response(prompt, RequestState(prompt.prompt_type))
         # return dummy_llm_response(prompt)
 
 
-def construct_prompt(content: str, prompt_type: str) -> str:
+def construct_prompt(content: str, state: RequestState) -> str:
     """
     A function to return a relevant prompt based on a given prompt_type and the contenet associated with it
     :param content: the content of the prompt to be constructed
-    :param prompt_type: the type of the prompt to be constructed
+    :param state: the current state of the request
     :return: the prompt to be used for the specific given prompt_type
     """
-
+    prompt_type = state.get_prompt_type()
     if prompt_type == "testname":
         constructed_prompt = (
             "[INST] As a detail-oriented developer, your task is to analyze the provided Java code and deduce a "
@@ -68,11 +69,12 @@ def construct_prompt(content: str, prompt_type: str) -> str:
             f"[CODE]\n{content}\n[/CODE]\n\n"
         )
     else:
+        given_when_then = " with the Given, When, Then Structure" if state.is_first_run() else ""
         constructed_prompt = (
             "[INST] <<SYS>> You are a Java developer optimizing JUnit tests for clarity. <</SYS>> Your task "
             "is to make a previously written JUnit test more understandable. The returned understandable test "
             "must be between the [TEST] and [/TEST] tags. \n"
-            "Add comments (with the Given, When, Then Structure) to the code which explain what is happening and the "
+            f"Add comments{given_when_then} to the code which explain what is happening and the "
             "intentions of what is being done."
             "Only Change variable names to make them more relevant leaving the test data untouched."
             "Overall, it is the goal to have a more concise test which is "
@@ -83,13 +85,15 @@ def construct_prompt(content: str, prompt_type: str) -> str:
     return constructed_prompt
 
 
-def utilize_llm(prompt: str, model: str = "codellama:7b-instruct") -> str:
+def utilize_llm(prompt: str, state: RequestState, model: str = "codellama:7b-instruct") -> str:
     """
     A function to utilize an LLM available in Ollama by providing the prompt and the (optional) model to use
+    :param state: the current state of the request
     :param prompt: the prompt to send to the LLM
     :param model: the model to utilize which is set to codellam:7b-instruct by default
     :return: the response of the model
     """
+
     API_URL = "http://localhost:11434/api/generate"
     headers = {
         'Content-Type': 'application/json'
@@ -101,7 +105,7 @@ def utilize_llm(prompt: str, model: str = "codellama:7b-instruct") -> str:
         "stream": False,
         "keep_alive": "-1"
     }
-
+    state.increment_llm_calls()
     response = requests.post(API_URL, headers=headers, data=json.dumps(data))
 
     if response.status_code == 200:
@@ -109,7 +113,7 @@ def utilize_llm(prompt: str, model: str = "codellama:7b-instruct") -> str:
         return data["response"]
     else:
         print("There was an error while trying to send the request to the LLM, trying again...")
-        return utilize_llm(prompt, model)
+        return utilize_llm(prompt, state, model=model)
 
 
 def validate_test_name(name: str) -> bool:
@@ -244,7 +248,12 @@ def parse_refined_test_method(code: str, original_code: str) -> str:
     if "try" in body and "catch" in body:
         body = body + "\n}"
     score = get_code_bleu_score(comment_stripped_code(body), original_code)
-    return body if (valid and "@Test" not in body and score > 0.5) else None
+
+    for unwanted_token in ["@Test", "Given(", "When(", "Then("]:
+        if unwanted_token in body:
+            return None
+
+    return body if (valid and score > 0.5) else None
 
 
 def parse_test_data(extracted_answer: str) -> str:
@@ -306,35 +315,36 @@ def extract_answer(response: str, prompt_type: str, original_code: Optional[str]
     return extracted_answer
 
 
-def get_llm_response(prompt: Prompt) -> Response:
+def get_llm_response(prompt: Prompt, state: RequestState) -> Response:
     """
-    Function to handle the communication with the LLM (either local or via Hugging Face API)
-    based on the USE_LOCAL_LLM flag. Constructs the prompt and processes the response.
+    Function to handle the communication with the LLM based on the implementation in the utilize_llm function
 
+    :param state: the current state of the request
     :param prompt: the provided prompt by the user as a Prompt type containing the fields required
     :return: The response of the llm as a Response type
     """
-
+    state.increment_iteration()
     try:
-        constructed_prompt = construct_prompt(prompt.prompt_text, prompt.prompt_type)
+        constructed_prompt = construct_prompt(prompt.prompt_text, state)
         print("The constructed prompt is:\n" + constructed_prompt)
 
-        response = utilize_llm(constructed_prompt)
+        response = utilize_llm(constructed_prompt, state)
         print("\n\nThe unprocessed LLM response was:\n" + response)
 
         answer = extract_answer(response, prompt.prompt_type, prompt.prompt_text)
 
         if not answer:
             raise Exception
+        state.end_request()
         print("\nThe final answer from LLM Server is:\n" + answer)
-
+        print(state.__repr__())
         return Response(llm_response=answer)
 
 
     except:
         print("There was an Error!")
         print("Trying again with same prompt...")
-        return get_llm_response(prompt)
+        return get_llm_response(prompt, state)
 
 
 schema = strawberry.Schema(query=Query)
