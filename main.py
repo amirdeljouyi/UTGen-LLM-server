@@ -127,7 +127,7 @@ def validate_test_name(name: str) -> bool:
         if (char in name):
             return False
 
-    if len(name.strip()) > 50:
+    if len(name.strip()) > 50 or len(name.strip()) < 5:
         return False
 
     return True
@@ -288,7 +288,7 @@ def extract_answer(response: str, prompt_type: str, original_code: Optional[str]
 
     try:
         extracted_answer = re.findall(regex_test, response, re.DOTALL)[(
-            -1 if prompt_type == "testdata" else 0
+            -1 if prompt_type == "testdata" or prompt_type == "testname" else 0
         )]
     except:
         try:
