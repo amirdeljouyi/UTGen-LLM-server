@@ -11,9 +11,10 @@ constructed_prompt = ("Write a java functions that bumps the version formatted a
                       "right most XX can only go from 00 to 99 but the left most one can go on forever.")
 
 data = {
-    "model": "codellama",
+    "model": "codellama:7b-instruct",
     "prompt": constructed_prompt,
-    "stream": False
+    "stream": False,
+    "keep_alive": "-1"
 }
 
 response = requests.post(url, headers=headers, data=json.dumps(data))
