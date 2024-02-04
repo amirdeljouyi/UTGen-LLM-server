@@ -4,6 +4,7 @@ import requests
 from typing import Optional
 import re
 import codebleu
+import subprocess
 from RequestState import RequestState
 
 
@@ -85,6 +86,18 @@ def construct_prompt(content: str, state: RequestState) -> str:
     return constructed_prompt
 
 
+def restart_llm():
+    """A function to call the bash script which will restart the docker container of the LLM"""
+    try:
+        print("attempting_restart")
+        subprocess.run(['./restart_llm_container.sh'])
+    except:
+        print("Something went wrong when trying to restart the LLM let's try again")
+        restart_llm()
+
+    print("Restart of the LLM successful - resuming regular processes")
+
+
 def utilize_llm(prompt: str, state: RequestState, model: str = "codellama:7b-instruct") -> str:
     """
     A function to utilize an LLM available in Ollama by providing the prompt and the (optional) model to use
@@ -106,7 +119,11 @@ def utilize_llm(prompt: str, state: RequestState, model: str = "codellama:7b-ins
         "keep_alive": "-1"
     }
     state.increment_llm_calls()
-    response = requests.post(API_URL, headers=headers, data=json.dumps(data))
+    try:
+        response = requests.post(API_URL, headers=headers, data=json.dumps(data), timeout=60)
+    except requests.exceptions.Timeout:
+        print("The LLM has been unresponsive for a while...\nRestarting the LLM")
+        restart_llm()
 
     if response.status_code == 200:
         data = json.loads(response.text)
@@ -378,3 +395,5 @@ schema = strawberry.Schema(query=Query)
 # """
 #
 # print(extract_answer(response_code, "test", orig_code))
+# restart_llm()
+

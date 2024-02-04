@@ -57,9 +57,9 @@ class RequestState:
 
         :return: A string representation of the RequestState object.
         """
-        return (f"RequestState(prompt_type={self.prompt_type}, "
-                f"request_start_time={self.request_start_time}, "
-                f"iteration_count={self.iteration_count}, "
-                f"llm_cals={self.llm_calls}, "
-                f"request_end_time={self.request_end_time})"
-                f"request_duration={self.get_duration()}")
+        return (f"RequestState(\n\tprompt_type={self.prompt_type}, "
+                f"\n\trequest_start_time={self.request_start_time}, "
+                f"\n\titeration_count={self.iteration_count}, "
+                f"\n\tllm_cals={self.llm_calls}, "
+                f"\n\trequest_end_time={self.request_end_time}"
+                f"\n\trequest_duration={self.get_duration().__repr__()}\n)")
