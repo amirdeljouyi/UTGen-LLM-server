@@ -19,6 +19,10 @@ class RequestState:
         """Increments the iteration count by 1."""
         self.iteration_count += 1
 
+    def get_iteration(self) -> int:
+        """:return: the current iteration of the request"""
+        return self.iteration_count
+
     def increment_llm_calls(self) -> None:
         """Increments the llm calls count by 1."""
         self.iteration_count += 1

@@ -70,18 +70,29 @@ def construct_prompt(content: str, state: RequestState) -> str:
             f"[CODE]\n{content}\n[/CODE]\n\n"
         )
     else:
-        given_when_then = " with the Given, When, Then Structure" if state.is_first_run() else ""
-        constructed_prompt = (
-            "[INST] <<SYS>> You are a Java developer optimizing JUnit tests for clarity. <</SYS>> Your task "
-            "is to make a previously written JUnit test more understandable. The returned understandable test "
-            "must be between the [TEST] and [/TEST] tags. \n"
-            f"Add comments{given_when_then} to the code which explain what is happening and the "
-            "intentions of what is being done."
-            "Only Change variable names to make them more relevant leaving the test data untouched."
-            "Overall, it is the goal to have a more concise test which is "
-            "both descriptive as well as relevant to the context. \n"
-            "The previously written test to improve is between the [CODE] and [/CODE] tags.\n"
-            f"[CODE]\n{content}\n[/CODE]\n")
+        if state.get_iteration() > 2:
+            constructed_prompt = (
+                "[INST] <<SYS>> You are a Java developer optimizing JUnit tests for clarity. <</SYS>> Your task "
+                "is to make a previously written JUnit test more understandable. The returned understandable test "
+                "must be between the [TEST] and [/TEST] tags. \n"
+                f"Add comments to the code which explain what is happening and the "
+                "intentions of what is being done."
+                "Overall, it is the goal to have a more descriptive test.\n "
+                "The previously written test to improve is between the [CODE] and [/CODE] tags.\n"
+                f"[CODE]\n{content}\n[/CODE]\n")
+        else:
+            given_when_then = " with the Given, When, Then Structure" if state.is_first_run() else ""
+            constructed_prompt = (
+                "[INST] <<SYS>> You are a Java developer optimizing JUnit tests for clarity. <</SYS>> Your task "
+                "is to make a previously written JUnit test more understandable. The returned understandable test "
+                "must be between the [TEST] and [/TEST] tags. \n"
+                f"Add comments{given_when_then} to the code which explain what is happening and the "
+                "intentions of what is being done."
+                "Only Change variable names to make them more relevant leaving the test data untouched."
+                "Overall, it is the goal to have a more concise test which is "
+                "both descriptive as well as relevant to the context. \n"
+                "The previously written test to improve is between the [CODE] and [/CODE] tags.\n"
+                f"[CODE]\n{content}\n[/CODE]\n")
 
     return constructed_prompt
 
@@ -353,6 +364,12 @@ def get_llm_response(prompt: Prompt, state: RequestState) -> Response:
     :return: The response of the llm as a Response type
     """
     state.increment_iteration()
+    if prompt.prompt_type not in ["testname", "testdata"] and state.get_iteration() > 4:
+        print("\nThe LLM could not improve the provided code...\n\tReturning original code")
+        state.end_request()
+        print(state.__repr__())
+        return Response(llm_response="// No Comments were added\n"+prompt.prompt_text)
+
     try:
         constructed_prompt = construct_prompt(prompt.prompt_text, state)
         print("The constructed prompt is:\n" + constructed_prompt)
@@ -377,4 +394,3 @@ def get_llm_response(prompt: Prompt, state: RequestState) -> Response:
 
 
 schema = strawberry.Schema(query=Query)
-
