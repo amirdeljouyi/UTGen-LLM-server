@@ -295,7 +295,9 @@ def extract_answer(response: str, prompt_type: str, original_code: Optional[str]
     :param prompt_type: the type of the prompt according to which the answer is extracted
     :return: the extracted answer
     """
-    regex_fallback = r'```java(?:[\s\S]*?)```'
+    regex_fallback = r'```(.*?)```'
+    fallback_testname = r'^TESTNAME:\s*(.+)$'
+
     if prompt_type == "testname":
         regex_test = r'\[TESTNAME](.*?)\[/TESTNAME]'
     elif prompt_type == "testdata":
@@ -312,13 +314,23 @@ def extract_answer(response: str, prompt_type: str, original_code: Optional[str]
             extracted_answer = re.findall(regex_fallback, response, re.DOTALL)[(
                 -1 if prompt_type == "testdata" else 0
             )]
-            extracted_answer = extracted_answer[3: -3]
+            while extracted_answer[0] == '`':
+                extracted_answer = extracted_answer[1:]
+            while extracted_answer[-1] == '`':
+                extracted_answer = extracted_answer[:-1]
+            # extracted_answer = extracted_answer[3: -3]
             if "java" in extracted_answer[0:4]:
                 extracted_answer = extracted_answer[4:]
 
         except:
-            print("The format of the returned response from the LLM was invalid")
-            return None
+            try:
+                if prompt_type == "testname":
+                    extracted_answer = re.findall(fallback_testname, response, re.MULTILINE)[-1]
+                else:
+                    raise Exception
+            except:
+                print("The format of the returned response from the LLM was invalid")
+                return None
 
     print("\n\nThe extracted answer is:\n" + extracted_answer)
 
@@ -396,4 +408,14 @@ schema = strawberry.Schema(query=Query)
 #
 # print(extract_answer(response_code, "test", orig_code))
 # restart_llm()
+
+code = """
+Some irrelevant line
+something: This is the content to be extracted
+Another irrelevant line
+Another something: Another piece of content
+Irrelevant again
+"""
+
+extract_answer(code, "testname", code)
 
