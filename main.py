@@ -70,7 +70,7 @@ def construct_prompt(content: str, state: RequestState) -> str:
             f"[CODE]\n{content}\n[/CODE]\n\n"
         )
     else:
-        if state.get_iteration() > 2:
+        if state.get_iteration() > 3:
             constructed_prompt = (
                 "[INST] <<SYS>> You are a Java developer optimizing JUnit tests for clarity. <</SYS>> Your task "
                 "is to make a previously written JUnit test more understandable. The returned understandable test "
@@ -127,7 +127,7 @@ def utilize_llm(prompt: str, state: RequestState, model: str = "codellama:7b-ins
         "model": model,
         "prompt": prompt,
         "stream": False,
-        "keep_alive": "-1"
+        "keep_alive": -1
     }
     state.increment_llm_calls()
     try:
@@ -263,6 +263,39 @@ def get_code_bleu_score(response_code, original_code):
     return code_bleu_scores['codebleu']
 
 
+def has_valid_brackets(code: str) -> bool | str:
+    """
+    A method which check whether all the brackets and parentheses are matched correctly and in the case the code
+    is valid throughout, it tries to fix the brackets after the code has finished being processed
+    :param code: code to evaluate the bracket correctness of
+    :return: a boolean indicating whether a code piece is correct
+    """
+
+    stack = []
+
+    matching_closing = {"}": "{", ")": "(", "]": "["}
+    matching_opening = {"{": "}", "(": ")", "[": "]"}
+
+    for char in code:
+        if char in "{[(":
+            stack.append(char)
+            continue
+        elif char in "}])":
+            if not stack or stack[-1] != matching_closing[char]:
+                return False
+            stack.pop()
+            continue
+
+    if not stack:
+        return True
+    else:
+        while stack:
+            code = code + (matching_opening[stack.pop()])
+            if code[-1] == ")":
+                code += ";"
+        return code
+
+
 def parse_refined_test_method(code: str, original_code: str) -> str:
     """
     A method to refine the format of the extracted refined test method
@@ -273,15 +306,32 @@ def parse_refined_test_method(code: str, original_code: str) -> str:
     # concatenating the different lines and returning the final string.
     body = get_code_body(code)
     valid = validate_refined_test_method_is_valid(body)
-    if "try" in body and "catch" in body:
-        body = body + "\n}"
+    if "try" in body and "catch" not in body:
+        return None
+
+    if "catch" in body and "try" not in body:
+        return None
+
+    # if "try" in body and "catch" in body:
+    #     body = body + "\n}"
+
     score = get_code_bleu_score(comment_stripped_code(body), original_code)
+
+    valid_brackets = has_valid_brackets(body)
+
+    if isinstance(valid_brackets, str):
+        body = valid_brackets
+        valid_brackets = True
+
+    if (re.search(r"public\s+void\s+(\w+)\s*\(([^)]*)\)", body) or
+            re.search(r"import\s+(static\s+)?[\w\.]+(\.\*)?;", body)):
+        return None
 
     for unwanted_token in ["@Test", "Given(", "When(", "Then("]:
         if unwanted_token in body:
             return None
 
-    return body if (valid and score > 0.5) else None
+    return body if (valid and score > 0.5 and valid_brackets) else None
 
 
 def parse_test_data(extracted_answer: str) -> str:
@@ -364,11 +414,11 @@ def get_llm_response(prompt: Prompt, state: RequestState) -> Response:
     :return: The response of the llm as a Response type
     """
     state.increment_iteration()
-    if prompt.prompt_type not in ["testname", "testdata"] and state.get_iteration() > 4:
+    if prompt.prompt_type not in ["testname", "testdata"] and state.get_iteration() > 5:
         print("\nThe LLM could not improve the provided code...\n\tReturning original code")
         state.end_request()
         print(state.__repr__())
-        return Response(llm_response="// No Comments were added\n"+prompt.prompt_text)
+        return Response(llm_response="// No Comments were added\n" + prompt.prompt_text)
 
     try:
         constructed_prompt = construct_prompt(prompt.prompt_text, state)
