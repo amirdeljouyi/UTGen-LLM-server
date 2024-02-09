@@ -6,6 +6,7 @@ import re
 import codebleu
 import subprocess
 from RequestState import RequestState
+from ANTLR.JavaValidator import validate_java_code
 
 
 @strawberry.input
@@ -197,7 +198,11 @@ def get_code_body(code: str) -> str:
             return True  # Don't keep javadoc prior to method
 
         if any(keyword in stripped_line for keyword in keywords):
-            return not "[]" in stripped_line  # take array declaration with the format type[]
+            if ("[]" in stripped_line) or ("try" in stripped_line):
+                return False
+            else:
+                return True
+            # take array declaration with the format type[]
             # name = new type[] {} into account
         return False
 
@@ -329,6 +334,8 @@ def parse_refined_test_method(code: str, original_code: str) -> str:
     if isinstance(valid_brackets, str):
         body = valid_brackets
         valid_brackets = True
+    elif not valid_brackets:
+        return None
 
     if (re.search(r"public\s+void\s+(\w+)\s*\(([^)]*)\)", body) or
             re.search(r"import\s+(static\s+)?[\w\.]+(\.\*)?;", body)):
@@ -338,7 +345,9 @@ def parse_refined_test_method(code: str, original_code: str) -> str:
         if unwanted_token in body:
             return None
 
-    return body if (valid and score > 0.5 and valid_brackets) else None
+    valid_java_syntax = validate_java_code(body)
+
+    return body if (valid and score > 0.5 and valid_brackets and valid_java_syntax) else None
 
 
 def parse_test_data(extracted_answer: str) -> str:
