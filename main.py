@@ -276,15 +276,22 @@ def has_valid_brackets(code: str) -> bool | str:
     matching_closing = {"}": "{", ")": "(", "]": "["}
     matching_opening = {"{": "}", "(": ")", "[": "]"}
 
+    string_flag = False
+
     for char in code:
-        if char in "{[(":
-            stack.append(char)
-            continue
-        elif char in "}])":
-            if not stack or stack[-1] != matching_closing[char]:
-                return False
-            stack.pop()
-            continue
+        if char == "\"":
+            string_flag = not string_flag
+        else:
+            if string_flag:
+                continue
+            if char in "{[(":
+                stack.append(char)
+                continue
+            elif char in "}])":
+                if not stack or stack[-1] != matching_closing[char]:
+                    return False
+                stack.pop()
+                continue
 
     if not stack:
         return True
