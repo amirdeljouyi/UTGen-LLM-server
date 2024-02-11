@@ -1,4 +1,4 @@
-strawberry==3.0
+strawberry-graphql[debug-server]==0.219.2
 
 requests~=2.31.0
 bleu~=0.3
@@ -9,3 +9,4 @@ javalang~=0.13.0
 gql~=3.5.0
 codebleu~=0.4.0
 utils~=1.0.2
+antlr4-python3-runtime~=4.13.1
