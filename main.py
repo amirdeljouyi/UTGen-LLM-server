@@ -13,7 +13,7 @@ from ANTLR.JavaValidator import validate_java_code
 class Prompt:
     prompt_text: str
     prompt_type: Optional[str] = None
-    mut_signature_and_doc: Optional[str] = None
+    additional_param: Optional[str] = None
 
 
 @strawberry.type
@@ -364,9 +364,11 @@ def parse_test_data(extracted_answer: str) -> str:
     return extracted_answer.strip() if "@Test" not in extracted_answer else None
 
 
-def extract_answer(response: str, prompt_type: str, original_code: Optional[str] = None) -> str:
+def extract_answer(response: str, prompt_type: str, original_code: Optional[str] = None,
+                   additional_param: str = None) -> str:
     """
     extracts the answer of the LLM based on the type of the prompt
+    :param additional_param: An additional param used to validate the testname is not redundant
     :param original_code: The original code which can be provided in the case where we are extracting refined test
     :param response: the complete response from teh LLM
     :param prompt_type: the type of the prompt according to which the answer is extracted
@@ -413,6 +415,9 @@ def extract_answer(response: str, prompt_type: str, original_code: Optional[str]
 
     if prompt_type == "testname":
         extracted_answer = parse_test_name(extracted_answer)
+        if additional_param:
+            if extracted_answer == additional_param:
+                return None
     elif prompt_type == "testdata":
         extracted_answer = parse_test_data(extracted_answer)
     else:
@@ -443,7 +448,8 @@ def get_llm_response(prompt: Prompt, state: RequestState) -> Response:
         response = utilize_llm(constructed_prompt, state)
         print("\n\nThe unprocessed LLM response was:\n" + response)
 
-        answer = extract_answer(response, prompt.prompt_type, prompt.prompt_text)
+        answer = extract_answer(response, prompt.prompt_type, prompt.prompt_text,
+                                prompt.additional_param if prompt.additional_param else None)
 
         if not answer:
             raise Exception
