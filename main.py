@@ -7,6 +7,7 @@ import codebleu
 import subprocess
 from RequestState import RequestState
 from ANTLR.JavaValidator import validate_java_code
+import os
 
 
 @strawberry.input
@@ -119,10 +120,12 @@ def utilize_llm(prompt: str, state: RequestState, model: str = "codellama:7b-ins
     :return: the response of the model
     """
 
-    API_URL = "http://localhost:11434/api/generate"
+    API_URL = os.getenv("OLLAMA_API_URL", "http://localhost:11434/api/generate")
     headers = {
         'Content-Type': 'application/json'
     }
+
+    print("API URL: ", API_URL)
 
     data = {
         "model": model,
